@@ -2,4 +2,4 @@
 
 ## Database
 
-<img width="2022" height="1107" alt="supabase-schema-xvbnlycdrewhoyhulylj" src="https://github.com/user-attachments/assets/c5072f7e-bd71-43be-a0bb-d092e0c03d3f" />
+<img width="2022" height="1107" alt="supabase-schema-xvbnlycdrewhoyhulylj (1)" src="https://github.com/user-attachments/assets/95783143-e705-4800-a7ca-088c29d82a00" />
