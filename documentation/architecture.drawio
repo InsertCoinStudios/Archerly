@@ -1,0 +1,64 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64; rv:144.0) Gecko/20100101 Firefox/144.0" version="29.2.1">
+  <diagram name="Page-1" id="xW4ec56eA3wXB6gy5wPK">
+    <mxGraphModel dx="2027" dy="818" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="light-dark(#FFFFFF,#121212)" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="CeCFAIfFQl4wYFce2Qi5-1" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;labelBackgroundColor=none;" value="" vertex="1">
+          <mxGeometry height="180" width="150" x="610" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="CeCFAIfFQl4wYFce2Qi5-2" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;labelBackgroundColor=none;" value="Supabase" vertex="1">
+          <mxGeometry height="65" width="85" x="642.5" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="CeCFAIfFQl4wYFce2Qi5-3" parent="1" style="ellipse;whiteSpace=wrap;html=1;labelBackgroundColor=none;" value="" vertex="1">
+          <mxGeometry height="160" width="260" x="210" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="CeCFAIfFQl4wYFce2Qi5-4" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;labelBackgroundColor=none;" value="Backend" vertex="1">
+          <mxGeometry height="65" width="100" x="290" y="347.5" as="geometry" />
+        </mxCell>
+        <mxCell id="CeCFAIfFQl4wYFce2Qi5-5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;labelBackgroundColor=none;" value="" vertex="1">
+          <mxGeometry height="150" width="300" x="-290" y="305" as="geometry" />
+        </mxCell>
+        <mxCell id="CeCFAIfFQl4wYFce2Qi5-6" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;labelBackgroundColor=none;" value="Frontend" vertex="1">
+          <mxGeometry height="65" width="120" x="-200" y="347.5" as="geometry" />
+        </mxCell>
+        <mxCell id="CeCFAIfFQl4wYFce2Qi5-8" edge="1" parent="1" source="CeCFAIfFQl4wYFce2Qi5-5" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;entryX=0.035;entryY=0.325;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.347;exitDx=0;exitDy=0;exitPerimeter=0;labelBackgroundColor=none;fontColor=default;" target="CeCFAIfFQl4wYFce2Qi5-3" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="100" y="355" as="sourcePoint" />
+            <mxPoint x="150" y="305" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CeCFAIfFQl4wYFce2Qi5-9" edge="1" parent="1" source="CeCFAIfFQl4wYFce2Qi5-3" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;exitX=0.031;exitY=0.691;exitDx=0;exitDy=0;exitPerimeter=0;labelBackgroundColor=none;fontColor=default;" target="CeCFAIfFQl4wYFce2Qi5-5" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="110" y="525" as="sourcePoint" />
+            <mxPoint x="229" y="520" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CeCFAIfFQl4wYFce2Qi5-11" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;labelBackgroundColor=none;" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Calls Endpoint&lt;/h1&gt;&lt;p&gt;Communication Protocol is JSON&lt;br&gt;Frontend calls an Endpoint with http verb and extra data in a URL and a JSON payload.&lt;/p&gt;" vertex="1">
+          <mxGeometry height="120" width="180" x="20" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="CeCFAIfFQl4wYFce2Qi5-14" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;labelBackgroundColor=none;" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Responds&lt;/h1&gt;&lt;p&gt;Responds with JSON and appropriate http code.&lt;/p&gt;" vertex="1">
+          <mxGeometry height="120" width="180" x="40" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="CeCFAIfFQl4wYFce2Qi5-15" edge="1" parent="1" source="CeCFAIfFQl4wYFce2Qi5-3" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;exitX=0.95;exitY=0.306;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.03;entryY=0.35;entryDx=0;entryDy=0;entryPerimeter=0;labelBackgroundColor=none;fontColor=default;" target="CeCFAIfFQl4wYFce2Qi5-1" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="510" y="370" as="sourcePoint" />
+            <mxPoint x="560" y="320" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CeCFAIfFQl4wYFce2Qi5-17" edge="1" parent="1" source="CeCFAIfFQl4wYFce2Qi5-1" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;exitX=0;exitY=0;exitDx=0;exitDy=127.5;exitPerimeter=0;entryX=0.958;entryY=0.722;entryDx=0;entryDy=0;entryPerimeter=0;labelBackgroundColor=none;fontColor=default;" target="CeCFAIfFQl4wYFce2Qi5-3" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="460" y="500" as="sourcePoint" />
+            <mxPoint x="618" y="504" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CeCFAIfFQl4wYFce2Qi5-19" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;labelBackgroundColor=none;" value="Supabase SDK" vertex="1">
+          <mxGeometry height="30" width="60" x="510" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="CeCFAIfFQl4wYFce2Qi5-20" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;labelBackgroundColor=none;" value="Supabase SDK" vertex="1">
+          <mxGeometry height="30" width="60" x="500" y="440" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
