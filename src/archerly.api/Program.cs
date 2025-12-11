@@ -1,4 +1,7 @@
-namespace backend;
+namespace archerly.api;
+
+using Serilog;
+using Serilog.Sinks.Loki;
 
 public static class Program
 {
@@ -10,6 +13,17 @@ public static class Program
         // Add services to the container.
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
+
+        //Setup Loki config either with user credntials or without
+        // Address to local or remote Loki server
+        var credentials = new BasicAuthCredentials("http://localhost:3100", "admin", "admin");
+        //var credentials = new NoAuthCredentials("http://localhost:3100"); 
+
+        Log.Logger = new LoggerConfiguration()
+        .MinimumLevel.Information()
+        .Enrich.FromLogContext()
+        .WriteTo.LokiHttp(credentials)
+        .CreateLogger();
 
         var app = builder.Build();
 
