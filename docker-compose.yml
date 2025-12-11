@@ -36,6 +36,22 @@ services:
       - prometheus-storage:/prometheus 
     networks:
       - monitoring
+  
+  archerly-api:
+    build:
+      context: .
+      dockerfile: src/archerly.api/Dockerfile
+      args:
+        CONFIGURATION: Release   # Can override to Debug with environment variable
+    container_name: archerly-api
+    ports:
+      - "5000:5000"
+    environment:
+      DOTNET_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "http://+:5000"
+    depends_on:
+      - prometheus
+      - loki
 
 volumes:
   #grafana-storage:
