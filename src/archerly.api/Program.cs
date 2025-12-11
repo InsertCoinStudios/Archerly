@@ -2,6 +2,7 @@ namespace archerly.api;
 
 using Serilog;
 using Serilog.Sinks.Loki;
+using Prometheus;
 
 public static class Program
 {
@@ -9,6 +10,9 @@ public static class Program
     {
 
         var builder = WebApplication.CreateBuilder(args);
+        // replace with actual port for metrics
+        // using var server = new KestrelMetricServer(port: 1234);
+        // server.Start();
 
         // Add services to the container.
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -34,6 +38,9 @@ public static class Program
         }
 
         app.UseHttpsRedirection();
+        // set up metrics instrumentation
+        app.UseMetricServer();
+        app.UseHttpMetrics();
 
         var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
 
