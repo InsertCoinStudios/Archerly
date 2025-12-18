@@ -15,6 +15,8 @@ public static class HuntsEndPoint
         app.MapPut("/hunts/{id}", PutHuntById);
         app.MapPost("/hunts/{id}/join", PostHuntJoinById);
         app.MapPost("/hunts/{id}/leave", PostHuntLeaveById);
+
+        app.MapPost("/hunts/{huntId}/animals/{animalId}", PostHuntShotOnTargetByIds);
     }
 
     private static IResult GetHunts()
@@ -76,5 +78,12 @@ public static class HuntsEndPoint
         // Validate that the user is logged in and that he is part of the hunt
         // If Not return UnAuthorized
         return Results.Ok(id);
+    }
+
+    private static IResult PostHuntShotOnTargetByIds(string? huntId, string? animalId)
+    {
+        // TODO:
+        // Uses the Huntid and the animalId and userId from the jwt to save a shot
+        return Results.Ok($"{huntId} | {animalId}");
     }
 }
