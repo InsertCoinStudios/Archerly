@@ -3,7 +3,7 @@ using archerly.api.helpers;
 
 namespace archerly.api.endpoints;
 
-public static class AllTimeStats
+public static class AllTimeStatsEndpoint
 {
 
     public static void MapAllTimeStatEndpoints(this IEndpointRouteBuilder app)

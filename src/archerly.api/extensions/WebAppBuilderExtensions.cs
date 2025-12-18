@@ -16,7 +16,9 @@ public static class WebAppBuilderExtensions
     {
         // Activate Login
         self.MapLoginEndpoints();
+        // Activate Hunt
         self.MapHuntEndpoints();
+        // Activate All Time Statistic
         self.MapAllTimeStatEndpoints();
 
 
