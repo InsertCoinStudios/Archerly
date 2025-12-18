@@ -1,3 +1,4 @@
+using archerly.api.endpoints;
 namespace archerly.api.extensions;
 
 using Prometheus;
@@ -13,6 +14,11 @@ public static class WebAppBuilderExtensions
 
     public static IApplicationBuilder UseRoutes(this WebApplication self)
     {
+        // Activate Login
+        self.MapLoginEndpoints();
+
+
+
         var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
 
         self.MapGet("/weatherforecast", () =>
