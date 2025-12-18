@@ -9,7 +9,7 @@ public static class LoginEndpoint
 
     private static IResult PostLogin()
     {
-        // TODO: 
+        // TODO: Login
         // Retrieve credentials
         // Provide Credentials to Supabase
         // Get Supabase Response
