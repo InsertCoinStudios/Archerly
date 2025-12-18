@@ -16,10 +16,16 @@ public static class WebAppBuilderExtensions
     {
         // Activate Login
         self.MapLoginEndpoints();
+        // Activate Register Endpoint
+        self.MapRegisterEndpoints();
         // Activate Hunt
         self.MapHuntEndpoints();
         // Activate All Time Statistic
         self.MapAllTimeStatEndpoints();
+        // Activate Course Endpoint
+        self.MapCourseEndpoints();
+        // Activate Animal Endpoints
+        self.MapAnimalEndpoints();
 
 
         var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
