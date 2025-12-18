@@ -16,7 +16,8 @@ public static class WebAppBuilderExtensions
     {
         // Activate Login
         self.MapLoginEndpoints();
-
+        self.MapHuntEndpoints();
+        self.MapAllTimeStatEndpoints();
 
 
         var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
