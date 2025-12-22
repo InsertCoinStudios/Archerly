@@ -26,6 +26,8 @@ public static class WebAppBuilderExtensions
         self.MapCourseEndpoints();
         // Activate Animal Endpoints
         self.MapAnimalEndpoints();
+        // Activate Image Endpoints
+        self.MapImageEndpoints();
 
 
         var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
