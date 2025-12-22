@@ -35,14 +35,15 @@ public static class HuntsEndPoint
     /// <returns></returns>
     private static IResult PostHunt(ClaimsPrincipal user)
     {
-        // TODO: Requires user to be logged in
+        // TODO: Post Hunt
+        // Requires user to be logged in
         // Returns a new Session id for the hunt
         return Results.Ok();
     }
 
     private static IResult DeleteHuntById(string? id, ClaimsPrincipal user)
     {
-        // TODO: Deleting a Hunt
+        // TODO: Delete Hunt
         // Validate that the sender is the current owner of the hunt or an admin
         // If Not return UnAuthorized
         // If yes delete the hunt from memory
@@ -51,7 +52,7 @@ public static class HuntsEndPoint
 
     private static IResult PutHuntById(string? id, ClaimsPrincipal user)
     {
-        // TODO: Replacing a Hunt
+        // TODO: Put Hunt
         // Validate that the sender is the current owner of the hunt or an admin
         // If Not return UnAuthorized
         return Results.Ok(id);
@@ -80,9 +81,9 @@ public static class HuntsEndPoint
         return Results.Ok(id);
     }
 
-    private static IResult PostHuntShotOnTargetByIds(string? huntId, string? animalId)
+    private static IResult PostHuntShotOnTargetByIds(string? huntId, string? animalId, ClaimsPrincipal user)
     {
-        // TODO:
+        // TODO: Post Shotdata
         // Uses the Huntid and the animalId and userId from the jwt to save a shot
         return Results.Ok($"{huntId} | {animalId}");
     }

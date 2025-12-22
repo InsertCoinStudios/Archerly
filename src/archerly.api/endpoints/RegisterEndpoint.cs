@@ -9,6 +9,7 @@ public static class RegisterEndpoint
     }
     private static IResult PostRegister()
     {
+        // TODO: Register
         return Results.Ok();
     }
 }

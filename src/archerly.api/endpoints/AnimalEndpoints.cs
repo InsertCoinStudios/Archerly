@@ -1,8 +1,9 @@
+using System.Security.Claims;
+
 namespace archerly.api.endpoints;
 
 public static class AnimalEndpoints
 {
-    // TODO: Admin only
     public static void MapAnimalEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet("/animal", GetAnimals);
@@ -15,28 +16,40 @@ public static class AnimalEndpoints
 
     private static IResult GetAnimals()
     {
+        // TODO: Get All Animals
+        // Retrieve data for all Animals from the db
         return Results.Ok();
     }
     private static IResult GetAnimalById(string? id)
     {
+        // TODO: Get specified Animal
+        // Retrieve data for the specific Animal
         return Results.Ok(id);
     }
 
-    private static IResult PostAnimal()
+    private static IResult PostAnimal(ClaimsPrincipal user)
     {
+        // TODO: Post Animal
+        // User has to be Admin
         return Results.Ok();
     }
 
-    private static IResult DeleteAnimalById(string? id)
+    private static IResult DeleteAnimalById(string? id, ClaimsPrincipal user)
     {
+        // TODO: Delete Animal
+        // Delete the specified Animal
         return Results.Ok(id);
     }
-    private static IResult PatchAnimalById(string? id)
+    private static IResult PatchAnimalById(string? id, ClaimsPrincipal user)
     {
+        // TODO: Patch Animal
+        // User has to be admin
         return Results.Ok(id);
     }
-    private static IResult PutAnimalById(string? id)
+    private static IResult PutAnimalById(string? id, ClaimsPrincipal user)
     {
+        // TODO: Put Animal
+        // User has to be admin
         return Results.Ok(id);
     }
 }
