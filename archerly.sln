@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "archerly.test", "archerly.t
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "archerly.tests", "src\tests\archerly.test\archerly.tests.csproj", "{3F6AFA64-31C1-4FC3-BF13-2BE45B2DBDC3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "archarly.database", "src\archerly.database\archerly.database\archarly.database.csproj", "{BF94C8E0-2C75-49B9-AB2C-1AC183127790}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,18 @@ Global
 		{3F6AFA64-31C1-4FC3-BF13-2BE45B2DBDC3}.Release|x64.Build.0 = Release|Any CPU
 		{3F6AFA64-31C1-4FC3-BF13-2BE45B2DBDC3}.Release|x86.ActiveCfg = Release|Any CPU
 		{3F6AFA64-31C1-4FC3-BF13-2BE45B2DBDC3}.Release|x86.Build.0 = Release|Any CPU
+		{BF94C8E0-2C75-49B9-AB2C-1AC183127790}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF94C8E0-2C75-49B9-AB2C-1AC183127790}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF94C8E0-2C75-49B9-AB2C-1AC183127790}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BF94C8E0-2C75-49B9-AB2C-1AC183127790}.Debug|x64.Build.0 = Debug|Any CPU
+		{BF94C8E0-2C75-49B9-AB2C-1AC183127790}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BF94C8E0-2C75-49B9-AB2C-1AC183127790}.Debug|x86.Build.0 = Debug|Any CPU
+		{BF94C8E0-2C75-49B9-AB2C-1AC183127790}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF94C8E0-2C75-49B9-AB2C-1AC183127790}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF94C8E0-2C75-49B9-AB2C-1AC183127790}.Release|x64.ActiveCfg = Release|Any CPU
+		{BF94C8E0-2C75-49B9-AB2C-1AC183127790}.Release|x64.Build.0 = Release|Any CPU
+		{BF94C8E0-2C75-49B9-AB2C-1AC183127790}.Release|x86.ActiveCfg = Release|Any CPU
+		{BF94C8E0-2C75-49B9-AB2C-1AC183127790}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

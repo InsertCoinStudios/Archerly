@@ -1,41 +1,37 @@
 services:
-  loki:
-    image: grafana/loki:latest
-    container_name: loki
-    ports:
-      - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
-    volumes:
-      - loki-storage:/loki
-      - ./loki/loki-config.yaml:/etc/loki/local-config.yaml
-    networks:
-      - monitoring
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    depends_on:
-      - loki
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    volumes:
-      #- grafana-storage:/var/lib/grafana
-      - ./grafana:/etc/grafana/provisioning
-    networks:
-      - monitoring
+#  loki:
+#    image: grafana/loki:latest
+#    container_name: loki
+#    ports:
+#      - "3100:3100"
+#    command: -config.file=/etc/loki/local-config.yaml
+#    volumes:
+#      - loki-storage:/loki
+#      - ./loki/loki-config.yaml:/etc/loki/local-config.yaml
+#    networks:
+#      - monitoring
+#
+#  grafana:
+#    image: grafana/grafana:latest
+#    container_name: grafana
+#    depends_on:
+#      - loki
+#    ports:
+#      - "3000:3000"
+#    environment:
+#      - GF_SECURITY_ADMIN_PASSWORD=admin
+#    volumes:
+#      #- grafana-storage:/var/lib/grafana
+#      - ./grafana:/etc/grafana/provisioning
+#    networks:
+#      - monitoring
   
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus:/etc/prometheus
-      - prometheus-storage:/prometheus 
-    networks:
-      - monitoring
+ # prometheus:
+    #image: prom/prometheus:latest
+    # ports:
+    #  - "9090:9090"
+    # networks:
+  #    - monitoring
   
   archerly-api:
     build:
@@ -49,20 +45,20 @@ services:
     environment:
       DOTNET_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:5000"
-    depends_on:
-      - prometheus
-      - loki
+#    depends_on:
+#      - prometheus
+#      - loki
 
-volumes:
-  #grafana-storage:
-  loki-storage:
-  prometheus-storage:
-
+#volumes:
+#  #grafana-storage:
+#  loki-storage:
+#  prometheus-storage:
+#
+##networks:
+##  monitoring:
+##    driver: bridge
+#
 #networks:
 #  monitoring:
-#    driver: bridge
-
-networks:
-  monitoring:
-    external: true
-    name: shared-monitoring
+#    external: true
+#    name: shared-monitoring
