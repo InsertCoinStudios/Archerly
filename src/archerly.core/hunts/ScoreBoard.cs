@@ -1,22 +1,29 @@
 
 using archerly.core.extensions;
+using Microsoft.VisualBasic;
 
 namespace archerly.core.hunts;
 
-public class ScoreBoard
+public class ScoreBoard : ICloneable<ScoreBoard>
 {
     private readonly List<Shot> _shots = new();
     private readonly Dictionary<User, long> _playerPoints = new();
-    private readonly ShotType _shotType = ShotType.ThreeShot;
+    private readonly ShotType _shotType;
+    private readonly List<Animal> _targets;
     private readonly Lock _lock = new();
 
-    public ScoreBoard(ShotType selectedVariant)
+    public ScoreBoard(ShotType selectedVariant, List<Animal> targets)
     {
         _shotType = selectedVariant;
+        _targets = targets;
     }
 
     public void RegisterShot(User Player, Animal Target, long Points)
     {
+        if (!_targets.Contains(Target))
+        {
+            throw new InvalidTargetForTargetListException(Target, _targets);
+        }
         var shot = new Shot(Player, Target, _shotType, Points);
         lock (_lock)
         {
@@ -61,4 +68,29 @@ public class ScoreBoard
         return result;
     }
 
+    public ScoreBoard Clone()
+    {
+        lock (_lock)
+        {
+            // Create a new ScoreBoard with the same ShotType
+            var copy = new ScoreBoard(_shotType, _targets);
+
+            // Deep copy shots
+            copy._shots.AddRange(_shots);
+
+            // Deep copy player points
+            foreach (var kv in _playerPoints)
+            {
+                copy._playerPoints[kv.Key] = kv.Value;
+            }
+
+            return copy;
+        }
+    }
+}
+
+public class InvalidTargetForTargetListException : Exception
+{
+    public InvalidTargetForTargetListException(Animal target, List<Animal> targetList)
+    : base($"The Target {target.Id}, is not valid for Target List [ {Strings.Join(targetList.Select(a => a.Id.ToString()).ToArray(), ", ")}]") { }
 }

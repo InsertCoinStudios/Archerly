@@ -17,4 +17,14 @@ public static class DictionaryExtensions
             dictionary[key] = value;
         }
     }
+
+    public static void RemoveAll<TKey, TValue>(this Dictionary<TKey, TValue> dict, Func<KeyValuePair<TKey, TValue>, bool> predicate)
+            where TKey : notnull
+    {
+        var keysToRemove = dict.Where(predicate).Select(kvp => kvp.Key).ToList();
+        foreach (var key in keysToRemove)
+        {
+            dict.Remove(key);
+        }
+    }
 }
