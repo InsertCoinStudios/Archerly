@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace archerly.core.extensions;
 
-public static class EnumExtensions
+public static class NumericExtensions
 {
     public static bool TryToEnum<TEnum, TValue>(this TValue value, [NotNullWhen(true)] out TEnum result)
             where TEnum : struct, Enum
