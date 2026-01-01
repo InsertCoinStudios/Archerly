@@ -32,6 +32,26 @@ public class Course
         _targets = new(targets);
     }
 
+    public Course(string name, string location, string info, Difficulty difficulty, List<Animal> targets)
+    {
+        Name = name;
+        Location = location;
+        Info = info;
+        Difficulty = difficulty;
+        _targets = targets;
+    }
+
+    // Placeholder for call to db to retrieve Course
+    public Course(Guid id)
+    {
+        _ = id;
+        Name = string.Empty;
+        Location = string.Empty;
+        Info = string.Empty;
+        Difficulty = Difficulty.Easy;
+        _targets = new List<Animal>();
+    }
+
     public void AddTarget(Animal target)
     {
         ArgumentNullException.ThrowIfNull(target);

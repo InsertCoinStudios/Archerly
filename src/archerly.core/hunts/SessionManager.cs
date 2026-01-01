@@ -70,6 +70,52 @@ public class SessionManager
         AddHunt(hunt);
     }
 
+    public void SetCourse(string sessionId, Guid courseId)
+    {
+        PendingHunt target;
+        lock (_lock)
+        {
+            // Check if there is a pending hunt with the sessionId
+            if (!_pendingHunts.TryGetValue(sessionId, out var entry))
+            {
+                throw new SessionNotFoundException(sessionId);
+            }
+            if (entry.IsDeleted)
+            {
+                throw new SessionDeletedException(sessionId);
+            }
+            target = entry.Value ?? throw new ArgumentNullException(nameof(entry.Value)); // this should never happen log this
+        }
+        // retrieve course by GUId from db
+        // TODO: Replace with call to the repository
+        var course = new Course(courseId);
+        target.Settings.SelectedCourse = course;
+    }
+
+    public void SetScoringVariant(string sessionId, int scoringVariant)
+    {
+        PendingHunt target;
+        ArgumentNullExceptionExtension.ThrowIfInvalidEnum<ShotType, int>(scoringVariant, nameof(scoringVariant));
+        lock (_lock)
+        {
+            // Check if there is a pending hunt with the sessionId
+            if (!_pendingHunts.TryGetValue(sessionId, out var entry))
+            {
+                throw new SessionNotFoundException(sessionId);
+            }
+            if (entry.IsDeleted)
+            {
+                throw new SessionDeletedException(sessionId);
+            }
+            target = entry.Value ?? throw new ArgumentNullException(nameof(entry.Value)); // this should never happen log this
+        }
+        if (!scoringVariant.TryToEnum(out ShotType variant))
+        {
+            // log this the exception did not get thrown
+        }
+        target.Settings.ScoringVariant = variant;
+    }
+
     // Garbage Collector Function
     public void Cleanup()
     {
@@ -110,5 +156,28 @@ public class SessionManager
         {
             IsDeleted = true;
         }
+    }
+
+}
+
+public sealed class SessionNotFoundException : Exception
+{
+    public string SessionId { get; }
+
+    public SessionNotFoundException(string sessionId)
+        : base($"Session '{sessionId}' does not exist.")
+    {
+        SessionId = sessionId;
+    }
+}
+
+public sealed class SessionDeletedException : Exception
+{
+    public string SessionId { get; }
+
+    public SessionDeletedException(string sessionId)
+        : base($"Session '{sessionId}' has been deleted.")
+    {
+        SessionId = sessionId;
     }
 }
