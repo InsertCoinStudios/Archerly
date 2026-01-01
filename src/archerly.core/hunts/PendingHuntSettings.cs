@@ -44,6 +44,22 @@ public class PendingHuntSettings
         }
     }
 
+    /// <summary>
+    /// Builds a <see cref="HuntSettings"/> instance from the current pending hunt settings.
+    /// </summary>
+    /// <remarks>
+    /// This method ensures that both the scoring variant and selected course are set before creating the <see cref="HuntSettings"/>.  
+    /// Thread safety is ensured during the build process.
+    /// </remarks>
+    /// <returns>
+    /// A fully populated <see cref="HuntSettings"/> instance containing the scoring variant and selected course.
+    /// </returns>
+    /// <exception cref="ScoringVariantNotSetException">
+    /// Thrown if the scoring variant has not been set in the pending hunt settings.
+    /// </exception>
+    /// <exception cref="CourseNotSetException">
+    /// Thrown if the selected course has not been set in the pending hunt settings.
+    /// </exception>
     public HuntSettings Build()
     {
         lock (_accessLock)

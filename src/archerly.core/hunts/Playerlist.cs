@@ -112,4 +112,14 @@ public class PlayerList
             }
         }
     }
+
+    /// <summary>
+    /// Represents a method that handles a <see cref="User"/>.
+    /// </summary>
+    public delegate void HandleUser(User user);
+
+    /// <summary>
+    /// Represents a method that handles a <see cref="Guid"/>.
+    /// </summary>
+    public delegate void HandleGuid(Guid id);
 }
