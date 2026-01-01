@@ -20,12 +20,36 @@ public class HuntManager
         _sessions.AddPendingHunt(pending);
     }
 
-    // TODO: Accept setting config Calls to the hunt
-    // TODO: Accept Activate Call to the Pending Hunt
-    // TODO: Accept Shot Made Call to the Hunt
-    // TODO: Accept Remove call to the Hunt
-    // TODO: Accept Player Join Leave call to the Hunt
+    public void SetCourseForPendingHunt(string sessionId, Guid courseId)
+    {
+        _sessions.SetCourse(sessionId, courseId);
+    }
 
+    public void SetScoringVariantForPendingHunt(string sessionId, int scoringVariant)
+    {
+        _sessions.SetScoringVariant(sessionId, scoringVariant);
+    }
+
+    public void ActivatePendingHunt(string sessionId)
+    {
+        _sessions.ActivateSession(sessionId);
+    }
+
+    public void RemoveSession(string sessionId)
+    {
+        _sessions.Remove(sessionId);
+    }
+    public void PlayerJoined(string sessionId, Guid playerId)
+    {
+        _sessions.PlayerJoined(sessionId, playerId);
+    }
+
+    public void PlayerLeft(string sessionId, Guid playerId)
+    {
+        _sessions.PlayerLeft(sessionId, playerId);
+    }
+
+    // TODO: Accept Shot Made Call to the Hunt
 
     private class TransferStrategies
     {
