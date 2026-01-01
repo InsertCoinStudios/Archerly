@@ -36,7 +36,7 @@ public static class EnumExtensions
         where TValue : INumber<TValue>
     {
         // TODO: Upgrade to dotnet 10
-        ArgumentNullExceptionExtension.ThrowIfInvalidEnum<TEnum, TValue>(value, nameof(value));
+        ArgumentOutOfRangeException.ThrowIfInvalidEnum<TEnum, TValue>(value, nameof(value));
         Type underlying = Enum.GetUnderlyingType(typeof(TEnum));
         object converted = Convert.ChangeType(value, underlying);
         return (TEnum)converted;

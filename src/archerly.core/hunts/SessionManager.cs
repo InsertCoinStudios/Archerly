@@ -95,7 +95,7 @@ public class SessionManager
     public void SetScoringVariant(string sessionId, int scoringVariant)
     {
         PendingHunt target;
-        ArgumentNullExceptionExtension.ThrowIfInvalidEnum<ShotType, int>(scoringVariant, nameof(scoringVariant));
+        ArgumentOutOfRangeException.ThrowIfInvalidEnum<ShotType, int>(scoringVariant, nameof(scoringVariant));
         lock (_lock)
         {
             // Check if there is a pending hunt with the sessionId
