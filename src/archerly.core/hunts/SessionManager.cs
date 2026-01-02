@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using archerly.core.extensions;
 namespace archerly.core.hunts;
 
-public class SessionManager
+public class SessionManager : IDisposable
 {
     private readonly Dictionary<string, SessionEntry<Hunt>> _hunts = new();
     private readonly Dictionary<string, SessionEntry<PendingHunt>> _pendingHunts = new();

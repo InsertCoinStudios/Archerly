@@ -14,7 +14,7 @@ public class PendingHunt
     {
         ArgumentNullException.ThrowIfNull(transitionAction);
 
-        SessionId = SessionIdGeneratorSingleton.Instance.Next();
+        SessionId = SessionIdGeneratorSingleton.Instance.Ressource.Next();
         Players = new PlayerList(owner, transferFunc);
         Settings = new PendingHuntSettings();
         _transitionAction = transitionAction;

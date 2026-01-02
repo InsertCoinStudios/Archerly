@@ -1,6 +1,6 @@
 namespace archerly.core.hunts;
 
-public class HuntManager
+public class HuntManager : IDisposable
 {
     private readonly SessionManager _sessions;
     private const short _maxSessions = 4096;
@@ -67,6 +67,11 @@ public class HuntManager
     public void SaveShot(string sessionId, Guid playerId, Guid animalId, long points)
     {
         _sessions.RegisterShot(sessionId, playerId, animalId, points);
+    }
+
+    public void Dispose()
+    {
+        _sessions.Dispose();
     }
 
     private class TransferStrategies

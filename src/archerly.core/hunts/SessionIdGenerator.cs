@@ -7,6 +7,7 @@ public class SessionIdGenerator
 
     private readonly int _length = 4;
     private int[] _indices; // holds base-64 digits
+    private readonly Lock _lock = new();
 
     // Constructor: start from beginning
     public SessionIdGenerator()
@@ -20,20 +21,23 @@ public class SessionIdGenerator
     /// </summary>
     public void RestartFrom(string lastSessionId)
     {
-        if (lastSessionId.Length != _length)
+        lock (_lock)
         {
-            throw new ArgumentException($"Session ID must be {_length} chars long.", nameof(lastSessionId));
-        }
-
-        _indices = lastSessionId.Select(c =>
-        {
-            int index = Array.IndexOf(_chars, c);
-            if (index < 0)
+            if (lastSessionId.Length != _length)
             {
-                throw new ArgumentException($"Invalid character '{c}' in session ID.");
+                throw new ArgumentException($"Session ID must be {_length} chars long.", nameof(lastSessionId));
             }
-            return index;
-        }).ToArray();
+
+            _indices = lastSessionId.Select(c =>
+            {
+                int index = Array.IndexOf(_chars, c);
+                if (index < 0)
+                {
+                    throw new ArgumentException($"Invalid character '{c}' in session ID.");
+                }
+                return index;
+            }).ToArray();
+        }
     }
 
     /// <summary>
@@ -41,17 +45,20 @@ public class SessionIdGenerator
     /// </summary>
     public string Next()
     {
-        // Increment base-64 number
-        for (int i = _length - 1; i >= 0; i--)
+        lock (_lock)
         {
-            _indices[i]++;
-            if (_indices[i] < 64)
+            // Increment base-64 number
+            for (int i = _length - 1; i >= 0; i--)
             {
-                break;
+                _indices[i]++;
+                if (_indices[i] < 64)
+                {
+                    break;
+                }
+                _indices[i] = 0; // carry
             }
-            _indices[i] = 0; // carry
-        }
 
-        return new string(_indices.Select(i => _chars[i]).ToArray());
+            return new string(_indices.Select(i => _chars[i]).ToArray());
+        }
     }
 }
