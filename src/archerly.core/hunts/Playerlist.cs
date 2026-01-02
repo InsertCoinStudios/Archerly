@@ -1,16 +1,17 @@
+using archerly.core.extensions;
 namespace archerly.core.hunts;
 
 public class PlayerList
 {
-    private readonly List<User> _players = new();
+    private readonly List<Guid> _players = new();
     private readonly Lock _playerLock = new();
 
-    public User Owner { get; private set; }
+    public Guid Owner { get; private set; }
 
     public Action RequestDissolution { get; set; } = () => { };
-    public Func<PlayerList, User?> OwnerShipTransferStrategy { get; set; }
+    public Func<PlayerList, Guid> OwnerShipTransferStrategy { get; set; }
 
-    public IReadOnlyList<User> ToList
+    public IReadOnlyList<Guid> ToList
     {
         get
         {
@@ -21,7 +22,7 @@ public class PlayerList
         }
     }
 
-    public PlayerList(User owner, Func<PlayerList, User?> transferFunc)
+    public PlayerList(Guid owner, Func<PlayerList, Guid> transferFunc)
     {
         ArgumentNullException.ThrowIfNull(owner);
         ArgumentNullException.ThrowIfNull(transferFunc);
@@ -31,7 +32,7 @@ public class PlayerList
         _players.Add(owner);
     }
 
-    public void Add(User player)
+    public void Add(Guid player)
     {
         ArgumentNullException.ThrowIfNull(player);
 
@@ -41,15 +42,9 @@ public class PlayerList
         }
     }
 
-    public void Add(Guid id)
+    public void Remove(Guid leavingPlayer)
     {
-        var player = new User(id);
-        Add(player);
-    }
-
-    public void Remove(User leavingPlayer)
-    {
-        ArgumentNullException.ThrowIfNull(leavingPlayer);
+        ArgumentException.ThrowIfEmpty(leavingPlayer);
 
         SessionAction action = GetActionAfterLeave(leavingPlayer);
 
@@ -61,29 +56,18 @@ public class PlayerList
         switch (action)
         {
             case SessionAction.TransferOwnership:
-                {
-                    TransferOwnership();
-                    break;
-                }
+                TransferOwnership();
+                break;
             case SessionAction.Dissolve:
-                {
-                    RequestDissolution();
-                    break;
-                }
+                RequestDissolution();
+                break;
             case SessionAction.Persist:
             default:
-                {
-                    break;
-                }
+                break;
         }
     }
 
-    public void Remove(Guid id)
-    {
-        Remove(new User(id));
-    }
-
-    private SessionAction GetActionAfterLeave(User leavingPlayer)
+    private SessionAction GetActionAfterLeave(Guid leavingPlayer)
     {
         if (leavingPlayer.Equals(Owner))
         {
@@ -105,18 +89,13 @@ public class PlayerList
     {
         if (OwnerShipTransferStrategy != null)
         {
-            User? nextOwner = OwnerShipTransferStrategy(this);
-            if (nextOwner != null)
+            Guid nextOwner = OwnerShipTransferStrategy(this);
+            if (!nextOwner.Equals(Guid.Empty))
             {
                 Owner = nextOwner;
             }
         }
     }
-
-    /// <summary>
-    /// Represents a method that handles a <see cref="User"/>.
-    /// </summary>
-    public delegate void HandleUser(User user);
 
     /// <summary>
     /// Represents a method that handles a <see cref="Guid"/>.

@@ -10,10 +10,9 @@ public class PendingHunt
     private readonly Lock _activateLock = new();
     private bool _activated;
 
-    public PendingHunt(Guid ownerId, Action<Hunt> transitionAction, Func<PlayerList, User?> transferFunc)
+    public PendingHunt(Guid owner, Action<Hunt> transitionAction, Func<PlayerList, Guid> transferFunc)
     {
         ArgumentNullException.ThrowIfNull(transitionAction);
-        var owner = new User(ownerId);
 
         SessionId = SessionIdGeneratorSingleton.Instance.Next();
         Players = new PlayerList(owner, transferFunc);

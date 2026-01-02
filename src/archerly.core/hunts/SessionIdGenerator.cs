@@ -21,12 +21,17 @@ public class SessionIdGenerator
     public void RestartFrom(string lastSessionId)
     {
         if (lastSessionId.Length != _length)
+        {
             throw new ArgumentException($"Session ID must be {_length} chars long.", nameof(lastSessionId));
+        }
 
         _indices = lastSessionId.Select(c =>
         {
             int index = Array.IndexOf(_chars, c);
-            if (index < 0) throw new ArgumentException($"Invalid character '{c}' in session ID.");
+            if (index < 0)
+            {
+                throw new ArgumentException($"Invalid character '{c}' in session ID.");
+            }
             return index;
         }).ToArray();
     }

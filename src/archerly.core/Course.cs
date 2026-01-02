@@ -6,7 +6,7 @@ public class Course
     public string Location { get; }
     public string Info { get; }
     public Difficulty Difficulty { get; }
-    public List<Animal> Targets
+    public List<Guid> Targets
     {
         get
         {
@@ -16,10 +16,10 @@ public class Course
             }
         }
     }
-    private readonly List<Animal> _targets;
+    private readonly List<Guid> _targets;
     private readonly Lock _targetsLock = new();
 
-    internal Course(PartialCourse partial, List<Animal> targets)
+    internal Course(PartialCourse partial, List<Guid> targets)
     {
         if (targets == null || targets.Count == 0)
         {
@@ -32,7 +32,7 @@ public class Course
         _targets = new(targets);
     }
 
-    public Course(string name, string location, string info, Difficulty difficulty, List<Animal> targets)
+    public Course(string name, string location, string info, Difficulty difficulty, List<Guid> targets)
     {
         Name = name;
         Location = location;
@@ -49,10 +49,10 @@ public class Course
         Location = string.Empty;
         Info = string.Empty;
         Difficulty = Difficulty.Easy;
-        _targets = new List<Animal>();
+        _targets = new List<Guid>();
     }
 
-    public void AddTarget(Animal target)
+    public void AddTarget(Guid target)
     {
         ArgumentNullException.ThrowIfNull(target);
         lock (_targetsLock)
@@ -61,7 +61,7 @@ public class Course
         }
     }
 
-    public void RemoveTarget(Animal target)
+    public void RemoveTarget(Guid target)
     {
         ArgumentNullException.ThrowIfNull(target);
         lock (_targetsLock)
@@ -99,7 +99,7 @@ public class Course
     {
         lock (_targetsLock)
         {
-            return _targets.Select(a => a.Id).ToList();
+            return _targets.Select(a => a).ToList();
         }
     }
 
@@ -110,13 +110,13 @@ public class Course
         lock (_targetsLock)
         {
             if (orderedIds.Count != _targets.Count ||
-                !orderedIds.All(id => _targets.Any(a => a.Id == id)))
+                !orderedIds.All(id => _targets.Any(a => a.Equals(id))))
             {
                 throw new ArgumentException("Invalid target order");
             }
 
             // Reorder targets in-place
-            var dict = _targets.ToDictionary(a => a.Id);
+            var dict = _targets.ToDictionary(a => a);
             _targets.Clear();
             foreach (var id in orderedIds)
             {

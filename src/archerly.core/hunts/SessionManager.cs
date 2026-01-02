@@ -7,7 +7,43 @@ public class SessionManager
 {
     private readonly Dictionary<string, SessionEntry<Hunt>> _hunts = new();
     private readonly Dictionary<string, SessionEntry<PendingHunt>> _pendingHunts = new();
+    public long Count => CalculateCount();
+    private long _allSessions;
+    private long _softDeletedSessions;
     private readonly Lock _lock = new();
+    private readonly Timer? _cleanupTimer;
+    private readonly TimeSpan _cleanupInterval;
+
+    private SessionManager(long intervalInMinutes)
+    {
+        _cleanupInterval = TimeSpan.FromMinutes(intervalInMinutes);
+        _cleanupTimer = new Timer(_ => Cleanup(), null, _cleanupInterval, _cleanupInterval);
+    }
+
+    public SessionManager()
+    {
+        _cleanupInterval = TimeSpan.Zero;
+        _cleanupTimer = null;
+    }
+
+    public static SessionManager WithAutomaticCleanup(long intervalInMinutes)
+    {
+        return new SessionManager(intervalInMinutes);
+    }
+
+    private long CalculateCount()
+    {
+        var res = _allSessions - _softDeletedSessions;
+        if (res >= 0)
+        {
+            return res;
+        }
+        else
+        {
+            // log this
+            return 0;
+        }
+    }
 
     public void AddHunt(Hunt hunt)
     {
@@ -16,6 +52,7 @@ public class SessionManager
         lock (_lock)
         {
             _hunts[hunt.SessionId] = new SessionEntry<Hunt>(hunt);
+            _allSessions++;
         }
     }
 
@@ -26,6 +63,7 @@ public class SessionManager
         lock (_lock)
         {
             _pendingHunts[pendingHunt.SessionId] = new SessionEntry<PendingHunt>(pendingHunt);
+            _allSessions++;
         }
     }
 
@@ -40,6 +78,7 @@ public class SessionManager
             if (_hunts.TryGetValue(sessionId, out var entry))
             {
                 entry.SoftDelete();
+                _softDeletedSessions++;
             }
         }
     }
@@ -55,6 +94,7 @@ public class SessionManager
             if (_pendingHunts.TryGetValue(sessionId, out var entry))
             {
                 entry.SoftDelete();
+                _softDeletedSessions++;
             }
         }
     }
@@ -179,6 +219,12 @@ public class SessionManager
         action(playerId);
     }
 
+    public void RegisterShot(string sessionId, Guid playerId, Guid animalId, long points)
+    {
+        var hunt = GetHunt(sessionId);
+        hunt.Scores.RegisterShot(playerId, animalId, points);
+    }
+
 
     private SessionReference GetSession(string sessionId)
     {
@@ -267,9 +313,28 @@ public class SessionManager
     {
         lock (_lock)
         {
+            // Count how many are being removed from hunts
+            int huntsRemoved = _hunts.Count(kvp => kvp.Value.IsDeleted());
+            int pendingRemoved = _pendingHunts.Count(kvp => kvp.Value.IsDeleted());
+
+            // Remove them
             _hunts.RemoveAll(kvp => kvp.Value.IsDeleted());
             _pendingHunts.RemoveAll(kvp => kvp.Value.IsDeleted());
+
+            // Update counters
+            _allSessions -= huntsRemoved + pendingRemoved;
+            _softDeletedSessions -= huntsRemoved + pendingRemoved;
         }
+    }
+
+    public void StopCleanUp()
+    {
+        _cleanupTimer?.Dispose();
+    }
+
+    public void Dispose()
+    {
+        _cleanupTimer?.Dispose();
     }
 
 

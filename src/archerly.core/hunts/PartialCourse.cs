@@ -15,7 +15,7 @@ public class PartialCourse
         this.Difficulty = Difficulty;
     }
 
-    public Course Populate(List<Animal> targets)
+    public Course Populate(List<Guid> targets)
     {
         return new Course(this, targets);
     }

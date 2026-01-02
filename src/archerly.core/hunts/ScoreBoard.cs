@@ -7,18 +7,20 @@ namespace archerly.core.hunts;
 public class ScoreBoard : ICloneable<ScoreBoard>
 {
     private readonly List<Shot> _shots = new();
-    private readonly Dictionary<User, long> _playerPoints = new();
+    // User Guids
+    private readonly Dictionary<Guid, long> _playerPoints = new();
     private readonly ShotType _shotType;
-    private readonly List<Animal> _targets;
+    // Guids of the Animals
+    private readonly List<Guid> _targets;
     private readonly Lock _lock = new();
 
-    public ScoreBoard(ShotType selectedVariant, List<Animal> targets)
+    public ScoreBoard(ShotType selectedVariant, List<Guid> targets)
     {
         _shotType = selectedVariant;
         _targets = targets;
     }
 
-    public void RegisterShot(User Player, Animal Target, long Points)
+    public void RegisterShot(Guid Player, Guid Target, long Points)
     {
         if (!_targets.Contains(Target))
         {
@@ -33,9 +35,9 @@ public class ScoreBoard : ICloneable<ScoreBoard>
         }
     }
 
-    public List<KeyValuePair<User, long>> GetRanking()
+    public List<KeyValuePair<Guid, long>> GetRanking()
     {
-        List<KeyValuePair<User, long>> result;
+        List<KeyValuePair<Guid, long>> result;
         lock (_lock)
         {
             result = _playerPoints
@@ -45,9 +47,9 @@ public class ScoreBoard : ICloneable<ScoreBoard>
         return result;
     }
 
-    public Dictionary<User, long> GetPointsByTarget(Animal target)
+    public Dictionary<Guid, long> GetPointsByTarget(Guid target)
     {
-        var result = new Dictionary<User, long>();
+        var result = new Dictionary<Guid, long>();
 
         lock (_lock)
         {
@@ -91,6 +93,6 @@ public class ScoreBoard : ICloneable<ScoreBoard>
 
 public class InvalidTargetForTargetListException : Exception
 {
-    public InvalidTargetForTargetListException(Animal target, List<Animal> targetList)
-    : base($"The Target {target.Id}, is not valid for Target List [ {Strings.Join(targetList.Select(a => a.Id.ToString()).ToArray(), ", ")}]") { }
+    public InvalidTargetForTargetListException(Guid target, List<Guid> targetList)
+    : base($"The Target {target.ToString()}, is not valid for Target List [ {Strings.Join(targetList.Select(a => a.ToString()).ToArray(), ", ")}]") { }
 }
