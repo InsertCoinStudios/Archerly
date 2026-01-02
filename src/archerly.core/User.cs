@@ -18,14 +18,4 @@ public class User
         this.LastName = LastName;
         this.Nickname = Nickname;
     }
-
-    public User(Guid Id)
-    {
-        this.Id = Id;
-        this.UserId = long.MinValue;
-        this.IsAdmin = false;
-        this.FirstName = string.Empty;
-        this.LastName = string.Empty;
-        this.Nickname = string.Empty;
-    }
 }
