@@ -4,7 +4,7 @@ using Microsoft.VisualBasic;
 
 namespace archerly.core.hunts;
 
-public class ScoreBoard : ICloneable<ScoreBoard>
+public class ScoreBoard
 {
     private readonly List<Shot> _shots = new();
     // User Guids
@@ -68,26 +68,6 @@ public class ScoreBoard : ICloneable<ScoreBoard>
         }
 
         return result;
-    }
-
-    public ScoreBoard Clone()
-    {
-        lock (_lock)
-        {
-            // Create a new ScoreBoard with the same ShotType
-            var copy = new ScoreBoard(_shotType, _targets);
-
-            // Deep copy shots
-            copy._shots.AddRange(_shots);
-
-            // Deep copy player points
-            foreach (var kv in _playerPoints)
-            {
-                copy._playerPoints[kv.Key] = kv.Value;
-            }
-
-            return copy;
-        }
     }
 }
 
