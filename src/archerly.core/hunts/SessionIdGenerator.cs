@@ -1,3 +1,5 @@
+using archerly.metrics;
+
 namespace archerly.core.hunts;
 
 public class SessionIdGenerator
@@ -10,8 +12,9 @@ public class SessionIdGenerator
     private readonly Lock _lock = new();
 
     // Constructor: start from beginning
-    public SessionIdGenerator()
+    public SessionIdGenerator(int length)
     {
+        _length = length;
         _indices = new int[_length];
         // all zeros, corresponds to "AAAA"
     }
@@ -57,6 +60,7 @@ public class SessionIdGenerator
                 }
                 _indices[i] = 0; // carry
             }
+            MetricsRegistry.GeneratedSessionIdsCounter.Inc();
 
             return new string(_indices.Select(i => _chars[i]).ToArray());
         }
