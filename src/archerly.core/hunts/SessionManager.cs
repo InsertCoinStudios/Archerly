@@ -354,7 +354,7 @@ public class SessionManager : IDisposable
         {
             get
             {
-                if (_isDeleted)
+                if (IsDeleted())
                 {
                     return default;
                 }
@@ -365,17 +365,28 @@ public class SessionManager : IDisposable
             }
         }
         private readonly T _val;
+        private readonly DateTime _createdAt;
+        private static readonly TimeSpan _expirationDuration = TimeSpan.FromDays(3);
         private bool _isDeleted;
         [MemberNotNullWhen(false, nameof(Value))]
         public bool IsDeleted()
         {
+            if (IsExpired())
+            {
+                return true;
+            }
             return _isDeleted;
+        }
+        private bool IsExpired()
+        {
+            return DateTime.UtcNow > _createdAt + _expirationDuration;
         }
 
         public SessionEntry(T value)
         {
             _val = value ?? throw new ArgumentNullException(nameof(value));
             _isDeleted = false;
+            _createdAt = DateTime.UtcNow;
         }
 
         public void SoftDelete()
