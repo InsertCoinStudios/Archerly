@@ -15,4 +15,9 @@
     <PackageReference Include="Serilog.Sinks.Loki" Version="3.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\archerly.core\archerly.core.csproj" />
+    <ProjectReference Include="..\archerly.metrics\archerly.metrics.csproj" />
+  </ItemGroup>
+
 </Project>
