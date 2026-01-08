@@ -4,6 +4,11 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <RootNamespace>archerly.models</RootNamespace>
     </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Supabase" Version="1.1.1" />
+    </ItemGroup>
 
 </Project>

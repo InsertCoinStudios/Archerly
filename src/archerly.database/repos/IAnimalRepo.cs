@@ -3,7 +3,7 @@ namespace archerly.database.repos;
 
 public interface IAnimalRepo
 {
-    Task<Animal?> GetByIdAsync(int id);
+    Task<Animal?> GetByIdAsync(Guid id);
     Task<IEnumerable<Animal>> GetAllAsync();
     void Insert(Animal animal);
     void Update(Animal animal);
