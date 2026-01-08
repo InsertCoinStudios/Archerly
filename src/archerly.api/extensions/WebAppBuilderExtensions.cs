@@ -1,17 +1,8 @@
 using archerly.api.endpoints;
 namespace archerly.api.extensions;
 
-using Prometheus;
-
 public static class WebAppBuilderExtensions
 {
-    public static IApplicationBuilder UseMetrics(this IApplicationBuilder self)
-    {
-        self.UseMetricServer();
-        self.UseHttpMetrics();
-        return self;
-    }
-
     public static IApplicationBuilder UseRoutes(this WebApplication self)
     {
         // Activate Login
