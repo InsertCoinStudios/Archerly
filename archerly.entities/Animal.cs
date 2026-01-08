@@ -22,6 +22,6 @@ public class Animal : BaseModel
 
     public Animal()
     {
-        return NotImplementedException;
+        throw new NotImplementedException();
     }
 }

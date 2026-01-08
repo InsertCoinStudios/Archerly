@@ -50,7 +50,7 @@ namespace archerly.database.repos
                 .Update(animal);
         }
 
-        public void Delete(Animal animal)
+        public async void Delete(Animal animal)
         {
             await _supabaseClient
                 .From<Animal>()
