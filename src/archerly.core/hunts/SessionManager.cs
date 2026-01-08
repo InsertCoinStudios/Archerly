@@ -504,24 +504,42 @@ public class SessionManager : IDisposable
 
 }
 
-public sealed class SessionNotFoundException : Exception
+public sealed class SessionNotFoundException : Exception, IApiErrorConvertible, IDetailProvider
 {
+    public IDictionary<string, object?> Details { get; init; } = new Dictionary<string, object?>();
     public string SessionId { get; }
 
     public SessionNotFoundException(string sessionId)
         : base($"Session '{sessionId}' does not exist.")
     {
         SessionId = sessionId;
+        Details.Add("session_id", SessionId);
+    }
+
+    public ApiError ToApiError()
+    {
+        var result = new ApiError("session_not_found", "The requested session could not be found");
+        result.MergeDetails(this);
+        return result;
     }
 }
 
-public sealed class SessionDeletedException : Exception
+public sealed class SessionDeletedException : Exception, IApiErrorConvertible, IDetailProvider
 {
+    public IDictionary<string, object?> Details { get; init; } = new Dictionary<string, object?>();
     public string SessionId { get; }
 
     public SessionDeletedException(string sessionId)
         : base($"Session '{sessionId}' has been deleted.")
     {
         SessionId = sessionId;
+        Details.Add("session_id", SessionId);
+    }
+
+    public ApiError ToApiError()
+    {
+        var result = new ApiError("session_deleted", "The requested session has been deleted");
+        result.MergeDetails(this);
+        return result;
     }
 }
