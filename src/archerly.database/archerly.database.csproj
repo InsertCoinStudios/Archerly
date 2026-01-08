@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\archerly.models\archerly.models.csproj" />
     <ProjectReference Include="..\archerly.metrics\archerly.metrics.csproj" />
   </ItemGroup>
 

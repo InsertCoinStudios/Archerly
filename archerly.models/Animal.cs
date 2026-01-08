@@ -1,7 +1,10 @@
-namespace archerly.core;
+using System.Text.Json.Serialization;
+
+namespace archerly.models;
 
 public class Animal
 {
+    [JsonPropertyName("id")]
     public Guid Id { get; init; }
 
     // In Db this is currently Species

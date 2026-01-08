@@ -1,4 +1,4 @@
-namespace archerly.core;
+namespace archerly.models;
 
 public class User
 {
