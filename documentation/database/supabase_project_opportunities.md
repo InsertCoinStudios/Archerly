@@ -1,0 +1,7 @@
+- Use Authenication to midigate the hassle
+	- Potential to later implement Google authentification or other such options
+- Storage handling - if we decide to store images online (Maybe for future feature or something) we can use Storage Buckets 
+- Automatic-Back-Up: Only possible using a paid plan.
+		- Not feasible for this project
+- Realtime / live-sync functionality: you can subscribe to database changes to power live collaborative features or real-time updates.
+- Optionally, serverless edge functions (aka. backend code running close to user, no need to run own servers) if your app needs custom logic.
