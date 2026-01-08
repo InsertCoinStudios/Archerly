@@ -8,8 +8,11 @@ public static class ImageEndpoint
 
     public static void MapImageEndpoints(this IEndpointRouteBuilder app)
     {
+        // Contract: or ApiError
         app.MapGet("/images", GetImages);
+        // Contract: or ApiError
         app.MapGet("/images/{id}", GetImage);
+        // Contract: or ApiError
         app.MapPost("/images", PostImage);
     }
 
