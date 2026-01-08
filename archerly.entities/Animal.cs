@@ -13,15 +13,4 @@ public class Animal : BaseModel
 
     [Column("image_url")] public string ImageUrl { get; set; }
 
-    /*public Animal(Guid id, string name, string imageUrl)
-    {
-        Id = id;
-        Name = name;
-        ImageUrl = imageUrl;
-    }
-
-    public Animal()
-    {
-        throw new NotImplementedException();
-    }*/
 }

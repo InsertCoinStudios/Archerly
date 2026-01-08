@@ -4,7 +4,7 @@ namespace archerly.database.repos
 {
     public interface IUserRepo
     {
-        Task<User?> GetByEmailAsync(string email);
+        Task<User?> GetByUserIdlAsync(Guid userid);
         
         void Add(User user);
         void Update(User user);

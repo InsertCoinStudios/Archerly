@@ -11,11 +11,11 @@ public class SupaBaseUserRepo: IUserRepo
         _supabaseClient = supabaseClient;
     }
     
-    public async Task<User?> GetByEmailAsync(string email)
+    public async Task<User?> GetByUserIdlAsync(Guid userid)
     {
         var user = await _supabaseClient
             .From<User>()
-            .Where(u => u.Email == email)
+            .Where(u => u.UserId == userid)
             .Single();
         return user;
     }
