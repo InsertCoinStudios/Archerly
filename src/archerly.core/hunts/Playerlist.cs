@@ -1,4 +1,5 @@
 using archerly.core.extensions;
+using archerly.metrics;
 namespace archerly.core.hunts;
 
 public class PlayerList
@@ -39,6 +40,7 @@ public class PlayerList
         lock (_playerLock)
         {
             _players.Add(player);
+            MetricsRegistry.PlayerGauge.Inc();
         }
     }
 
@@ -51,6 +53,7 @@ public class PlayerList
         lock (_playerLock)
         {
             _players.Remove(leavingPlayer);
+            MetricsRegistry.PlayerGauge.Dec();
         }
 
         switch (action)
