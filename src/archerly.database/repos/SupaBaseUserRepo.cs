@@ -1,0 +1,45 @@
+﻿using archerly.models;
+using Supabase;
+
+namespace archerly.database.repos;
+
+public class SupaBaseUserRepo: IUserRepo
+{
+    private readonly Client _supabaseClient;
+    public SupaBaseUserRepo(Client supabaseClient)
+    {
+        _supabaseClient = supabaseClient;
+    }
+    
+    public async Task<User?> GetByEmailAsync(string email)
+    {
+        var user = await _supabaseClient
+            .From<User>()
+            .Where(u => u.Email == email)
+            .Single();
+        return user;
+    }
+
+    public async void Add(User user)
+    {
+        await _supabaseClient
+            .From<User>()
+            .Insert(user);
+    }
+
+    public async void Update(User user)
+    {
+        await _supabaseClient
+            .From<User>()
+            .Where(u => u.Id == user.Id)
+            .Update(user);
+    }
+
+    public async void Delete(User user)
+    {
+        await _supabaseClient
+            .From<User>()
+            .Where(u => u.Id == user.Id)
+            .Delete();
+    }
+}
