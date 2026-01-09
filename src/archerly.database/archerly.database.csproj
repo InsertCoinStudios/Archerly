@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\archerly.entities\archerly.entities.csproj" />
+    <ProjectReference Include="..\archerly.entities\archerly.entities.csproj" />
     <ProjectReference Include="..\archerly.metrics\archerly.metrics.csproj" />
   </ItemGroup>
 

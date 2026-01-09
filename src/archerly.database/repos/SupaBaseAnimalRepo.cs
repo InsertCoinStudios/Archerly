@@ -1,4 +1,4 @@
-﻿using archerly.models;
+﻿using archerly.entities;
 using Serilog;
 using Supabase;
 

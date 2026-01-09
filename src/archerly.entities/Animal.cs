@@ -1,7 +1,7 @@
-using System.Text.Json.Serialization;
-using Supabase.Postgrest.Models;
 using Supabase.Postgrest.Attributes;
-namespace archerly.models;
+using Supabase.Postgrest.Models;
+
+namespace archerly.entities;
 
 [Supabase.Postgrest.Attributes.Table("animal")]
 public class Animal : BaseModel

@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\archerly.entities\archerly.entities.csproj" />
     <ProjectReference Include="..\..\archerly.database\archerly.database.csproj" />
+    <ProjectReference Include="..\..\archerly.entities\archerly.entities.csproj" />
   </ItemGroup>
 
 </Project>

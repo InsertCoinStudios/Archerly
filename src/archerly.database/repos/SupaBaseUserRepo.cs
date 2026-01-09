@@ -1,4 +1,4 @@
-﻿using archerly.models;
+﻿using archerly.entities;
 using Supabase;
 
 namespace archerly.database.repos;

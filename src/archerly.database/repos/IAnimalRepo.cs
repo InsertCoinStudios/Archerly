@@ -1,4 +1,5 @@
-﻿using archerly.models;
+﻿using archerly.entities;
+
 namespace archerly.database.repos;
 
 public interface IAnimalRepo
