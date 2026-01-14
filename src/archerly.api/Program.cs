@@ -14,26 +14,7 @@ public static class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        builder.Services
-        .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
-        {
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = false,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-
-                ValidIssuer = "https://YOUR_PROJECT_ID.supabase.co/auth/v1",
-                IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Supabase:JwtSecret"]!)
-            ),
-
-                // 👇 important: map `sub` correctly
-                NameClaimType = ClaimTypes.NameIdentifier
-            };
-        });
+        builder.AddSupabase();
 
         builder.Services.AddAuthorization();
 
@@ -41,7 +22,7 @@ public static class Program
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
 
-        //Setup Loki config either with user credentials or without
+        //Setup Loki config either with user credntials or without
         // Address to local or remote Loki server
         var credentials = new BasicAuthCredentials("http://localhost:3100", "admin", "admin");
         //var credentials = new NoAuthCredentials("http://localhost:3100"); 

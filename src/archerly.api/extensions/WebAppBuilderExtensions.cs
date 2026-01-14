@@ -1,4 +1,8 @@
 using archerly.api.endpoints;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using System.Text;
 namespace archerly.api.extensions;
 
 public static class WebAppBuilderExtensions
@@ -20,22 +24,69 @@ public static class WebAppBuilderExtensions
         // Activate Image Endpoints
         self.MapImageEndpoints();
 
-
-        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
-
-        self.MapGet("/weatherforecast", () =>
-        {
-            var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-                .ToArray();
-            return forecast;
-        })
-        .WithName("GetWeatherForecast");
         return self;
     }
+
+    public static WebApplicationBuilder AddSupabase(this WebApplicationBuilder builder)
+    {
+        builder.AddSupabaseAuth();
+        builder.AddSupabaseClient();
+
+        return builder;
+    }
+
+    private static WebApplicationBuilder AddSupabaseClient(this WebApplicationBuilder builder)
+    {
+        // Environmental Variable = SUPABASE__URL 
+        var url = builder.Configuration["Supabase:Url"]
+            ?? throw new InvalidOperationException("Supabase:Url missing");
+
+        // Environmental Variable = SUPABASE__AnonKey
+        var key = builder.Configuration["Supabase:AnonKey"]
+            ?? throw new InvalidOperationException("Supabase:AnonKey missing");
+
+        var options = new Supabase.SupabaseOptions
+        {
+            AutoConnectRealtime = true
+        };
+
+        builder.Services.AddSingleton(_ =>
+            new Supabase.Client(url, key, options)
+        );
+
+        return builder;
+    }
+
+    private static WebApplicationBuilder AddSupabaseAuth(this WebApplicationBuilder builder)
+    {
+        builder.Services
+        .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+            // Environmental Variable = SUPABASE__JWTSecret
+            var secret = builder.Configuration["Supabase:JwtSecret"]
+            ?? throw new InvalidOperationException("Supabase:JwtSecret missing");
+
+            // Environmental Variable = SUPABASE__ValidIssuer
+            var validIssuer = builder.Configuration["Supabase:ValidIssuer"]
+            ?? throw new InvalidOperationException("Supabase:ValidIssuer missing");
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+
+                ValidIssuer = validIssuer,
+                IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(secret)
+            ),
+
+                // 👇 important: map `sub` correctly
+                NameClaimType = ClaimTypes.NameIdentifier
+            };
+        });
+        return builder;
+    }
+
 }
