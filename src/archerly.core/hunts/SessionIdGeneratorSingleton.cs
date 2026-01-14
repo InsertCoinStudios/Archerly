@@ -12,6 +12,6 @@ public sealed class SessionIdGeneratorSingleton
     // Private constructor for singleton
     private SessionIdGeneratorSingleton()
     {
-        Ressource = new SessionIdGenerator();
+        Ressource = new SessionIdGenerator(4);
     }
 }

@@ -7,11 +7,17 @@ public static class CoursesEndpoint
 
     public static void MapCourseEndpoints(this IEndpointRouteBuilder app)
     {
+        // Contract: List<Courses> or ApiError
         app.MapGet("/courses", GetCourses);
+        // Contract: Course or ApiError
         app.MapGet("/courses/{id}", GetCourseById);
+        // Contract: Empty or ApiError
         app.MapPost("/courses", PostCourse);
+        // Contract: Empty or ApiError
         app.MapDelete("/courses/{id}", DeleteCourseById);
+        // Contract: Empty or ApiError
         app.MapPatch("/courses/{id}", PatchCourseById);
+        // Contract: Empty or ApiError
         app.MapPut("/courses/{id}", PutCourseById);
     }
 

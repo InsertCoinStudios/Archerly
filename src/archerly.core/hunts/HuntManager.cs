@@ -1,3 +1,5 @@
+using Serilog;
+
 namespace archerly.core.hunts;
 
 public class HuntManager : IDisposable
@@ -21,9 +23,10 @@ public class HuntManager : IDisposable
     {
         if (_sessions.Count > _maxSessions)
         {
-            throw new InvalidOperationException(
+            var ex = new InvalidOperationException(
                 $"Cannot create a new pending hunt: maximum number of sessions ({_maxSessions}) reached."
             );
+            Log.Warning(ex, $"Location: CreateNewPendingHunt Creating PendingHunt for User with Guid ({ownerId})");
         }
         var transitionAction = _sessions.TransitionFromPending;
         var transferFunc = TransferStrategies.TransferToTop;
@@ -36,12 +39,26 @@ public class HuntManager : IDisposable
 
     public void SetCourseForPendingHunt(string sessionId, Guid courseId)
     {
+        // TODO: I am expecting potential exceptions from the database layer when retrieving the Course
         _sessions.SetCourse(sessionId, courseId);
     }
 
     public void SetScoringVariantForPendingHunt(string sessionId, int scoringVariant)
     {
-        _sessions.SetScoringVariant(sessionId, scoringVariant);
+        try
+        {
+            _sessions.SetScoringVariant(sessionId, scoringVariant);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            Log.Warning(
+                        ex,
+                        "Failed to set scoring variant for pending hunt. SessionId: {SessionId}, Value: {ScoringVariant}",
+                        sessionId,
+                        scoringVariant
+                    );
+            throw;
+        }
     }
 
     public void ActivatePendingHunt(string sessionId)

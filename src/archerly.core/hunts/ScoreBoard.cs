@@ -71,8 +71,20 @@ public class ScoreBoard
     }
 }
 
-public class InvalidTargetForTargetListException : Exception
+public class InvalidTargetForTargetListException : Exception, IApiErrorConvertible, IDetailProvider
 {
+    public IDictionary<string, object?> Details { get; init; } = new Dictionary<string, object?>();
     public InvalidTargetForTargetListException(Guid target, List<Guid> targetList)
-    : base($"The Target {target.ToString()}, is not valid for Target List [ {Strings.Join(targetList.Select(a => a.ToString()).ToArray(), ", ")}]") { }
+    : base($"The Target {target.ToString()}, is not valid for Target List [ {Strings.Join(targetList.Select(a => a.ToString()).ToArray(), ", ")}]")
+    {
+        Details.Add("target_guid", target);
+        Details.Add("target_list", targetList);
+    }
+
+    public ApiError ToApiError()
+    {
+        var result = new ApiError("invalid_target_for_targets", "The given Target is not a valid Target for the provided target List");
+        result.MergeDetails(this);
+        throw new NotImplementedException();
+    }
 }
