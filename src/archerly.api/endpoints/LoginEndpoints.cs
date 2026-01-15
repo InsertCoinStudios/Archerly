@@ -1,4 +1,8 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
+using archerly.api.helpers;
+using archerly.core;
+using archerly.database.repos;
 
 namespace archerly.api.endpoints;
 
@@ -21,8 +25,31 @@ public static class LoginEndpoint
         {
             return Results.Unauthorized();
         }
-        // TODO: Query Database for if the UserId is Admin
-        bool isAdmin = false;
+        var parsed = JwtHelpers.ParseJWT(jwt);
+        if (!JwtHelpers.TryGetUserGuid(parsed, out Guid user_id))
+        {
+            return Results.Problem(new ApiError(
+                "failed_parsing_jwt",
+                "Supabase provided a JWT that could not be parsed")
+                .ToString(),
+                statusCode: 500,
+                type: "login:failed",
+                title: "failed_parsing_jwt"
+                );
+        }
+        var user = await new SupaBaseUserRepo(client).GetByUserIdlAsync(user_id);
+        if (user is null)
+        {
+            return Results.Problem(new ApiError(
+                "retrieved_jwt_but_no_user_found",
+                "Supabase returned a JWT but there is no user for this saved")
+                .ToString(),
+                statusCode: 500,
+                type: "login:failed",
+                title: "retrieved_jwt_but_no_user_found"
+                );
+        }
+        bool isAdmin = user.IsAdmin;
         var response = new LoginResponse(
             jwt,
             isAdmin,
