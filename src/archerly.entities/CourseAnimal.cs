@@ -2,15 +2,15 @@
 using Supabase.Postgrest.Models;
 
 namespace archerly.entities;
-[System.ComponentModel.DataAnnotations.Schema.Table("course_animals")]
+[Table("course_animals")]
 public class CourseAnimal:BaseModel
 {
     [PrimaryKey("id")]
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
     [Column("course_id")]
-    public int CourseId { get; set; }
+    public Guid CourseId { get; init; }
     [Column("animal_id")]
-    public int AnimalId { get; set; }
+    public Guid AnimalId { get; init; }
     [Column("order_number")]
-    public string OrderNumber { get; set; }
+    public string OrderNumber { get; init; }
 }

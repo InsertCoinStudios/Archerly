@@ -1,16 +1,18 @@
 ﻿using archerly.database.repos;
+using archerly.entities;
 
 namespace archerly.tests;
 
 public class UnitTest1
 {
+    
+    string url = "https://xvbnlycdrewhoyhulylj.supabase.co";
+    string key = "sb_publishable_3ASU1hTVILnRVJtfLRdE2g_GSTeg8Sd";
+    
     //This Test is so I know if I get any models back or naw and can access its attributes
     [Fact]
     private async Task SetUp()
-    {
-        var url = "https://xvbnlycdrewhoyhulylj.supabase.co";
-        var key = "";
-        var options = new Supabase.SupabaseOptions
+    {   var options = new Supabase.SupabaseOptions
         {
             AutoConnectRealtime = true
         };
@@ -23,5 +25,39 @@ public class UnitTest1
         string species = animal.First().Name;
         
         Assert.NotNull(species);
+    }
+    [Fact]
+    private async Task TestGetCourseAndListOfAnimals()
+    {
+        var options = new Supabase.SupabaseOptions
+        {
+            AutoConnectRealtime = true
+        };
+
+        var supabase = new Supabase.Client(url, key, options);
+        await supabase.InitializeAsync();
+        
+        SupaBaseCourseRepo courseRepo = new SupaBaseCourseRepo(supabase);
+        SupaBaseCourseAnimalsRepo courseAnimalRepo = new SupaBaseCourseAnimalsRepo(supabase);
+        SupaBaseAnimalRepo animalRepo = new SupaBaseAnimalRepo(supabase);
+
+
+        var course = await courseRepo.GetByNameAsync("Wilde Safari");
+        Assert.NotNull(course);
+        
+        var all = await courseAnimalRepo.GetAllAsync();
+        var animalsInCourse = await courseAnimalRepo.GetByCourseIdAsync(course.Id);
+        Assert.NotNull(animalsInCourse);
+        List<Animal> animals = null;
+        foreach (var animalInCourse in animalsInCourse)
+        {
+            var animalModel = await animalRepo.GetByIdAsync(animalInCourse.Id);
+            Assert.NotNull(animalModel);
+            
+            animals?.Add(animalModel);
+        }
+        
+        Assert.NotNull(animals);
+
     }
 }

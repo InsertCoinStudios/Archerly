@@ -8,7 +8,8 @@ public class Course:BaseModel
 {
     [PrimaryKey("id")]
     public Guid Id { get; init; }
-    
+    [Column("created_at")]
+    public DateTime CreatedAt { get; init; }
     [Column("name")]
     public string Name { get; init; }
     [Column("location")]

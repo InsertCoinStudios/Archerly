@@ -12,17 +12,18 @@ public class SupaBaseCourseAnimalsRepo
     public SupaBaseCourseAnimalsRepo(Client supabaseClient)
     {
         _supabaseClient = supabaseClient;
+        _operation = new Operations(_supabaseClient);
     }
 
-    public async Task<CourseAnimal?> GetByIdAsync(Guid id)
+    public async Task<List<CourseAnimal>> GetByCourseIdAsync(Guid id)
     {
         var canimal = await _supabaseClient
             .From<CourseAnimal>()
-            .Where(ca => ca.Id == id)
-            .Single();
+            .Where(ca => ca.CourseId == id)
+            .Get();
             
         Log.Information("Getting course animal with id {id}", id);
-        return canimal;
+        return canimal.Models;
     }
 
     public async Task<IEnumerable<CourseAnimal>> GetAllAsync()

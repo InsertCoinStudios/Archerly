@@ -14,6 +14,7 @@ public class SupaBaseCourseRepo
     public SupaBaseCourseRepo(Client supabaseClient)
     {
         _supabaseClient = supabaseClient;
+        _operation = new Operations(_supabaseClient);
     }
 
     public async Task<List<Course>> GetAll()
@@ -24,16 +25,21 @@ public class SupaBaseCourseRepo
 
         foreach (var course in courses.Models)
         {
-            var difficulty = await _supabaseClient
-                .From<DifficultyM>()
-                .Select("id, difficulty")
-                .Where(d => d.Id == course.DifficultyId)
-                .Single();
-
-            course.Difficulty = difficulty.DifficultyName;
+            getDifficultyString(course);
         }
         
         return courses.Models;
+    }
+
+    private async void getDifficultyString(Course course)
+    {
+        var difficulty = await _supabaseClient
+            .From<DifficultyM>()
+            .Select("id, difficulty")
+            .Where(d => d.Id == course.DifficultyId)
+            .Single();
+
+        course.Difficulty = difficulty.DifficultyName;
     }
     
     public async Task<Course?> GetByIdAsync(Guid id)
@@ -42,6 +48,18 @@ public class SupaBaseCourseRepo
             .From<Course>()
             .Where(a => a.Id == id)
             .Single();
+            
+        return course;
+    }
+    
+    public async Task<Course?> GetByNameAsync(string cname)
+    {
+        var course = await _supabaseClient
+            .From<Course>()
+            .Where(a => a.Name == cname)
+            .Single();
+        
+        getDifficultyString(course);
             
         return course;
     }
