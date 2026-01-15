@@ -1,5 +1,6 @@
 using archerly.core.extensions;
 using archerly.metrics;
+using System.Linq;
 namespace archerly.core.hunts;
 
 public class PlayerList
@@ -18,7 +19,7 @@ public class PlayerList
         {
             lock (_playerLock)
             {
-                return _players.ToList();
+                return _players.AsEnumerable().ToList();
             }
         }
     }

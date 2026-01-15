@@ -14,13 +14,13 @@ public static class AllTimeStatsEndpoint
 
     private static IResult GetAllTimeStats(ClaimsPrincipal user)
     {
-        if (!JwtHelpers.TryGetUserId(user, out string? userId))
+        if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(GetAllTimeStats), user, out Guid guid, out IResult? error))
         {
-            return Results.Unauthorized();
+            return error;
         }
         // TODO: AllTimeStats
         // TODO: GetAllTimeStats from DB
-        // Use JWT to get the AllTimeStats for the user
+        // TODO: GetAll Shots the User ever made
         return Results.Ok();
     }
 }

@@ -69,6 +69,37 @@ public class ScoreBoard
 
         return result;
     }
+
+    public List<Shot> GetShotsForPlayer(Guid player)
+    {
+        List<Shot> result = new();
+        foreach (var shot in _shots)
+        {
+            if (player.Equals(shot.Player))
+            {
+                result.Add(shot);
+            }
+        }
+        return result;
+    }
+
+    public Dictionary<Guid, List<Shot>> GetShotsGroupedByPlayers()
+    {
+        var result = new Dictionary<Guid, List<Shot>>();
+        foreach (var shot in _shots)
+        {
+            var player = shot.Player;
+            if (!result.ContainsKey(player))
+            {
+                result[player] = new();
+            }
+            else
+            {
+                result[player].Add(shot);
+            }
+        }
+        return result;
+    }
 }
 
 public class InvalidTargetForTargetListException : Exception, IApiErrorConvertible, IDetailProvider

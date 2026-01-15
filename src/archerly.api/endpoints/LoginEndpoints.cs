@@ -25,18 +25,12 @@ public static class LoginEndpoint
         {
             return Results.Unauthorized();
         }
-        var parsed = JwtHelpers.ParseJWT(jwt);
-        if (!JwtHelpers.TryGetUserGuid(parsed, out Guid user_id))
+
+        if (!JwtHelpers.TryGetUserGuidFromRawToken("Login", jwt, out Guid user_id, out IResult? error))
         {
-            return Results.Problem(new ApiError(
-                "failed_parsing_jwt",
-                "Supabase provided a JWT that could not be parsed")
-                .ToString(),
-                statusCode: 500,
-                type: "login:failed",
-                title: "failed_parsing_jwt"
-                );
+            return error;
         }
+
         var user = await new SupaBaseUserRepo(client).GetByUserIdlAsync(user_id);
         if (user is null)
         {

@@ -146,9 +146,17 @@ public class SessionManager : IDisposable
     /// </exception>
     public void ActivateSession(string sessionId)
     {
-        var pending = GetPendingHunt(sessionId);
-        pending.Activate();
-        Log.Information("Activated PendingHunt with sessionID {sessionId}", sessionId);
+        try
+        {
+            var pending = GetPendingHunt(sessionId);
+            pending.Activate();
+            Log.Information("Activated PendingHunt with sessionID {sessionId}", sessionId);
+        }
+        catch (Exception e)
+        {
+            Log.Warning(e, $"Function: ActivateSession ID:{sessionId}");
+            throw;
+        }
     }
 
     /// <summary>
@@ -199,40 +207,58 @@ public class SessionManager : IDisposable
         pending.Settings.ScoringVariant = (ShotType)scoringVariant;
     }
 
-    public void PlayerJoined(string sessionId, Guid playerId)
+    public bool PlayerJoined(string sessionId, Guid playerId)
     {
         var session = GetSession(sessionId);
-        PlayerList.HandleGuid action = (id) => { };
         if (session.IsHunt())
         {
-            action = session.Hunt.Players.Add;
+            session.Hunt.Players.Add(playerId);
+            return true;
         }
         if (session.IsPending())
         {
-            action = session.Pending.Players.Add;
+            session.Pending.Players.Add(playerId);
+            return true;
         }
-        action(playerId);
+        return false;
     }
 
-    public void PlayerLeft(string sessionId, Guid playerId)
+    public bool PlayerLeft(string sessionId, Guid playerId)
     {
         var session = GetSession(sessionId);
-        PlayerList.HandleGuid action = (id) => { };
         if (session.IsHunt())
         {
-            action = session.Hunt.Players.Remove;
+            session.Hunt.Players.Remove(playerId);
+            return true;
         }
         if (session.IsPending())
         {
-            action = session.Pending.Players.Remove;
+            session.Pending.Players.Remove(playerId);
+            return true;
         }
-        action(playerId);
+        return false;
     }
 
     public void RegisterShot(string sessionId, Guid playerId, Guid animalId, long points)
     {
         var hunt = GetHunt(sessionId);
         hunt.Scores.RegisterShot(playerId, animalId, points);
+    }
+
+    public AllStats GetStats(string sessionId)
+    {
+        var hunt = GetHunt(sessionId);
+        var ranks = hunt.Scores.GetRanking();
+        var shotsByPlayers = hunt.Scores.GetShotsGroupedByPlayers();
+        return new AllStats(shotsByPlayers, ranks);
+    }
+
+    public UserStats GetUserStats(string sessionId, Guid player)
+    {
+        var hunt = GetHunt(sessionId);
+        var ranks = hunt.Scores.GetRanking();
+        var shots = hunt.Scores.GetShotsForPlayer(player);
+        return new UserStats(player, shots, ranks);
     }
 
     public void RemovePlayerFromSessions(Guid playerId)
@@ -260,7 +286,7 @@ public class SessionManager : IDisposable
     }
 
 
-    private SessionReference GetSession(string sessionId)
+    public SessionReference GetSession(string sessionId)
     {
         lock (_lock)
         {
@@ -438,7 +464,7 @@ public class SessionManager : IDisposable
         }
     }
 
-    internal class SessionReference
+    public class SessionReference
     {
         private readonly Hunt? _hunt;
         private readonly PendingHunt? _pending;
@@ -527,6 +553,9 @@ public class SessionManager : IDisposable
     }
 
 }
+
+public record AllStats(Dictionary<Guid, List<Shot>> ByPlayers, List<KeyValuePair<Guid, long>> Ranking);
+public record UserStats(Guid User, List<Shot> Shots, List<KeyValuePair<Guid, long>> Ranking);
 
 public sealed class SessionNotFoundException : Exception, IApiErrorConvertible, IDetailProvider
 {

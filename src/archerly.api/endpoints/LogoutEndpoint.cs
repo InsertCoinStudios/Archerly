@@ -15,31 +15,15 @@ public static class LogoutEndpoint
     // Note: The Client promises to purge the JWT and to never use it again
     private static IResult PostLogout(ClaimsPrincipal user, HuntManager manager)
     {
-        if (!JwtHelpers.TryGetUserId(user, out string? userId))
+        if (JwtHelpers.TryGetUserGuidFromClaim("Logout", user, out Guid guid, out IResult? error))
         {
-            return Results.Problem(new ApiError(
-                "failed_parsing_jwt",
-                "Requester provided a JWT that could not be parsed")
-                .ToString(),
-                type: "logout:failed",
-                title: "failed_parsing_jwt",
-                statusCode: 500
-                );
+            // loops over all sessions and removes that guid
+            manager.RemoveUserFromSessions(guid);
+            return Results.Ok();
         }
-        if (userId is null)
+        else
         {
-            return Results.Problem(new ApiError(
-                "failed_parsing_jwt",
-                "Requester provided a JWT that could not be parsed")
-                .ToString(),
-                type: "logout:failed",
-                title: "failed_parsing_jwt",
-                statusCode: 500
-                );
+            return error;
         }
-        var guid = Guid.Parse(userId);
-        // loops over all sessions and removes that guid
-        manager.RemoveUserFromSessions(guid);
-        return Results.Ok();
     }
 }

@@ -8,7 +8,6 @@ public class Hunt
         {
             lock (_scoreLock)
             {
-                // Deep Copy
                 return _scores;
             }
         }
