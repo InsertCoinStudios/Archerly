@@ -3,10 +3,6 @@ namespace archerly.api;
 using Serilog;
 using Serilog.Sinks.Loki;
 using archerly.api.extensions;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using System.Security.Claims;
 using archerly.metrics;
 
 public static class Program
@@ -15,6 +11,7 @@ public static class Program
     {
         var builder = WebApplication.CreateBuilder(args);
         builder.AddSupabase();
+        builder.AddHuntManagerService();
 
         builder.Services.AddAuthorization();
 
