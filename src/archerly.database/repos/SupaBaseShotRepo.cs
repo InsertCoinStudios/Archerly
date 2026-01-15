@@ -23,7 +23,7 @@ public class SupaBaseShotRepo
         return courses.Models;
     }
 
-    public async Task<List<Shot>> GetAllByPlayerAndAnimal(int playerId, int animalId)
+    public async Task<List<Shot>> GetAllByPlayerAndAnimal(int playerId, Guid animalId)
     {
         var shots = await _supabaseClient
             .From<Shot>()
@@ -32,9 +32,9 @@ public class SupaBaseShotRepo
         return shots.Models;
     }
 
-    public void Insert(Shot shot)
+    public async Task Insert(Shot shot)
     {
-        _operations.Insert(shot);
+        await _operations.Insert(shot);
     }
     
     

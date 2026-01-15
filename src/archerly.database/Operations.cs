@@ -5,15 +5,12 @@ using Supabase.Postgrest.Models;
 class Operations(Client _supabaseClient)
 {
 
-    public async void Insert<T>(T model)
+    public async Task Insert<T>(T model) 
         where T : BaseModel, new()
     {
         await _supabaseClient
             .From<T>()
             .Insert(model);
-
-        Log.Information("New {Entity} added: {@Model}", typeof(T).Name, model);
-
     }
     
     //Id not guaranteed ?
