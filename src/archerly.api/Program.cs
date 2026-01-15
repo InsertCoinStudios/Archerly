@@ -41,7 +41,7 @@ public static class Program
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
 
-        //Setup Loki config either with user credntials or without
+        //Setup Loki config either with user credentials or without
         // Address to local or remote Loki server
         var credentials = new BasicAuthCredentials("http://localhost:3100", "admin", "admin");
         //var credentials = new NoAuthCredentials("http://localhost:3100"); 

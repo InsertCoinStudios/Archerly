@@ -4,6 +4,7 @@ public static class LoginEndpoint
 {
     public static void MapLoginEndpoints(this IEndpointRouteBuilder app)
     {
+        // Contract: JWT or ApiError
         app.MapPost("/login", PostLogin);
     }
 

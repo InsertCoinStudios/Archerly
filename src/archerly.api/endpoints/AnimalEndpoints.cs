@@ -6,12 +6,18 @@ public static class AnimalEndpoints
 {
     public static void MapAnimalEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/animal", GetAnimals);
-        app.MapGet("/animal/{id}", GetAnimalById);
-        app.MapPost("/animal", PostAnimal);
-        app.MapDelete("/animal/{id}", DeleteAnimalById);
-        app.MapPatch("/animal/{id}", PatchAnimalById);
-        app.MapPut("/animal/{id}", PutAnimalById);
+        // Contract: List<Animal> or ApiError
+        app.MapGet("/animals", GetAnimals);
+        // Contract: Animal or ApiError
+        app.MapGet("/animals/{id}", GetAnimalById);
+        // Contract: Empty or ApiError
+        app.MapPost("/animals", PostAnimal);
+        // Contract: Empty or ApiError
+        app.MapDelete("/animals/{id}", DeleteAnimalById);
+        // Contract: Empty or ApiError
+        app.MapPatch("/animals/{id}", PatchAnimalById);
+        // Contract: Empty or ApiError
+        app.MapPut("/animals/{id}", PutAnimalById);
     }
 
     private static IResult GetAnimals()

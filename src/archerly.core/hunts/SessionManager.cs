@@ -1,6 +1,8 @@
 
 using System.Diagnostics.CodeAnalysis;
 using archerly.core.extensions;
+using archerly.metrics;
+using Serilog;
 namespace archerly.core.hunts;
 
 public class SessionManager : IDisposable
@@ -52,6 +54,7 @@ public class SessionManager : IDisposable
         lock (_lock)
         {
             _hunts[hunt.SessionId] = new SessionEntry<Hunt>(hunt);
+            MetricsRegistry.HuntGauge.Inc();
             _allSessions++;
         }
     }
@@ -63,6 +66,7 @@ public class SessionManager : IDisposable
         lock (_lock)
         {
             _pendingHunts[pendingHunt.SessionId] = new SessionEntry<PendingHunt>(pendingHunt);
+            MetricsRegistry.PendingHuntGauge.Inc();
             _allSessions++;
         }
     }
@@ -78,6 +82,8 @@ public class SessionManager : IDisposable
             if (_hunts.TryGetValue(sessionId, out var entry))
             {
                 entry.SoftDelete();
+                MetricsRegistry.HuntGauge.Dec();
+                MetricsRegistry.SoftDeletedSessionGauge.Inc();
                 _softDeletedSessions++;
             }
         }
@@ -94,6 +100,8 @@ public class SessionManager : IDisposable
             if (_pendingHunts.TryGetValue(sessionId, out var entry))
             {
                 entry.SoftDelete();
+                MetricsRegistry.PendingHuntGauge.Dec();
+                MetricsRegistry.SoftDeletedSessionGauge.Inc();
                 _softDeletedSessions++;
             }
         }
@@ -140,6 +148,7 @@ public class SessionManager : IDisposable
     {
         var pending = GetPendingHunt(sessionId);
         pending.Activate();
+        Log.Information("Activated PendingHunt with sessionID {sessionId}", sessionId);
     }
 
     /// <summary>
@@ -180,13 +189,14 @@ public class SessionManager : IDisposable
     /// </exception>
     public void SetScoringVariant(string sessionId, int scoringVariant)
     {
-        ArgumentOutOfRangeException.ThrowIfInvalidEnum<ShotType, int>(scoringVariant, nameof(scoringVariant));
+        ArgumentOutOfRangeException.ThrowIfInvalidEnum<ShotType, int>(
+            scoringVariant,
+            nameof(scoringVariant)
+        );
+
         var pending = GetPendingHunt(sessionId);
-        if (!scoringVariant.TryToEnum(out ShotType variant))
-        {
-            // log this the exception did not get thrown
-        }
-        pending.Settings.ScoringVariant = variant;
+
+        pending.Settings.ScoringVariant = (ShotType)scoringVariant;
     }
 
     public void PlayerJoined(string sessionId, Guid playerId)
@@ -311,6 +321,10 @@ public class SessionManager : IDisposable
     // Garbage Collector Function
     public void Cleanup()
     {
+        var now = DateTime.UtcNow;
+        long cleanUpCount = 0;
+        Log.Information("Starting CleanUp of Soft Deleted Sessions at {currentUTCTime}", now);
+
         lock (_lock)
         {
             // Count how many are being removed from hunts
@@ -323,17 +337,22 @@ public class SessionManager : IDisposable
 
             // Update counters
             _allSessions -= huntsRemoved + pendingRemoved;
-            _softDeletedSessions -= huntsRemoved + pendingRemoved;
+            cleanUpCount = huntsRemoved = pendingRemoved;
+            _softDeletedSessions -= cleanUpCount;
+            MetricsRegistry.SoftDeletedSessionGauge.Dec(cleanUpCount);
         }
+        Log.Information("Completed CleanUp Run started at {startTimeUTC}, removed {amount} Soft Deleted Sessions", now, cleanUpCount);
     }
 
     public void StopCleanUp()
     {
+        Log.Information("CleanUp is being stopped TimeStamp {time}", DateTime.UtcNow);
         _cleanupTimer?.Dispose();
     }
 
     public void Dispose()
     {
+        Log.Information("CleanUp is being stopped TimeStamp {time}", DateTime.UtcNow);
         _cleanupTimer?.Dispose();
     }
 
@@ -485,24 +504,42 @@ public class SessionManager : IDisposable
 
 }
 
-public sealed class SessionNotFoundException : Exception
+public sealed class SessionNotFoundException : Exception, IApiErrorConvertible, IDetailProvider
 {
+    public IDictionary<string, object?> Details { get; init; } = new Dictionary<string, object?>();
     public string SessionId { get; }
 
     public SessionNotFoundException(string sessionId)
         : base($"Session '{sessionId}' does not exist.")
     {
         SessionId = sessionId;
+        Details.Add("session_id", SessionId);
+    }
+
+    public ApiError ToApiError()
+    {
+        var result = new ApiError("session_not_found", "The requested session could not be found");
+        result.MergeDetails(this);
+        return result;
     }
 }
 
-public sealed class SessionDeletedException : Exception
+public sealed class SessionDeletedException : Exception, IApiErrorConvertible, IDetailProvider
 {
+    public IDictionary<string, object?> Details { get; init; } = new Dictionary<string, object?>();
     public string SessionId { get; }
 
     public SessionDeletedException(string sessionId)
         : base($"Session '{sessionId}' has been deleted.")
     {
         SessionId = sessionId;
+        Details.Add("session_id", SessionId);
+    }
+
+    public ApiError ToApiError()
+    {
+        var result = new ApiError("session_deleted", "The requested session has been deleted");
+        result.MergeDetails(this);
+        return result;
     }
 }

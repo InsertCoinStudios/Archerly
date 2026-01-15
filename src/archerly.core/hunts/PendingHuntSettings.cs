@@ -1,3 +1,4 @@
+
 namespace archerly.core.hunts;
 
 
@@ -83,18 +84,34 @@ public class PendingHuntSettings
 }
 
 
-public class ScoringVariantNotSetException : Exception
+public class ScoringVariantNotSetException : Exception, IApiErrorConvertible, IDetailProvider
 {
     public ScoringVariantNotSetException()
-        : base("HuntSettings has unset ScoringVariant.")
+        : base("PendingHuntSettings has unset ScoringVariant.")
     {
+    }
+    public IDictionary<string, object?> Details { get; init; } = new Dictionary<string, object?>();
+
+    public ApiError ToApiError()
+    {
+        var result = new ApiError("scoring_variant_not_set", "This Pending Hunt has no scoring variant configured");
+        result.MergeDetails(this);
+        return result;
     }
 }
 
-public class CourseNotSetException : Exception
+public class CourseNotSetException : Exception, IApiErrorConvertible, IDetailProvider
 {
     public CourseNotSetException()
-        : base("HuntSettings has unset SelectedCourse.")
+        : base("PendingHuntSettings has unset SelectedCourse.")
     {
+    }
+
+    public IDictionary<string, object?> Details { get; init; } = new Dictionary<string, object?>();
+    public ApiError ToApiError()
+    {
+        var result = new ApiError("course_not_set", "This Pending Hunt has no course configured");
+        result.MergeDetails(this);
+        return result;
     }
 }

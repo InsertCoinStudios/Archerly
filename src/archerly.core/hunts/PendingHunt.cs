@@ -42,7 +42,7 @@ public class PendingHunt
         {
             if (_activated)
             {
-                throw new HuntAlreadyActivatedException();
+                throw new HuntAlreadyActivatedException(SessionId, Settings);
             }
             //throws ScoringVariantNotSetException;
             //throws CourseNotSetException;
@@ -54,10 +54,23 @@ public class PendingHunt
         }
     }
 }
-public class HuntAlreadyActivatedException : Exception
+public class HuntAlreadyActivatedException : Exception, IApiErrorConvertible, IDetailProvider
 {
-    public HuntAlreadyActivatedException()
+    public HuntAlreadyActivatedException(string sessionId, PendingHuntSettings settings)
         : base("PendingHunt has already been finalized.")
     {
+        Details.Add("session_id", sessionId);
+        Details.Add("shot_type", settings.ScoringVariant);
+        Details.Add("selected_course", settings.SelectedCourse);
+    }
+
+    public IDictionary<string, object?> Details { get; init; } = new Dictionary<string, object?>();
+    public ApiError ToApiError()
+    {
+        var result = new ApiError(
+            "hunt_already_activated",
+            "This Pending Hunt has already been activated");
+        result.MergeDetails(this);
+        return result;
     }
 }
