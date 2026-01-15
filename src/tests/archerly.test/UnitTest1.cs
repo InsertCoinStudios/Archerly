@@ -59,4 +59,32 @@ public class UnitTest1
         Assert.NotNull(animals);
 
     }
+    [Fact]
+    private async void MakeNewUser()
+    {
+        User user = new User();
+        user.FirstName = "John";
+        user.LastName = "Doe";
+        user.IsAdmin = false;
+        user.Nickname = "JohnDoe";
+
+        var options = new Supabase.SupabaseOptions
+        {
+            AutoConnectRealtime = true
+        };
+
+        var supabase = new Supabase.Client(url, key, options);
+        await supabase.InitializeAsync();
+        
+        SupaBaseUserRepo userRepo = new SupaBaseUserRepo(supabase);
+        userRepo.Add(user);
+
+        var newUser = userRepo.GetByUserNickAsync(user.Nickname);
+        Assert.NotNull(newUser);
+    }
+
+    private void NewHunt()
+    {
+        //Add Player
+    }
 }

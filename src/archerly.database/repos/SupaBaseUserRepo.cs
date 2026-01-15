@@ -19,6 +19,15 @@ public class SupaBaseUserRepo: IUserRepo
             .Single();
         return user;
     }
+    
+    public async Task<User?> GetByUserNickAsync(string nick)
+    {
+        var user = await _supabaseClient
+            .From<User>()
+            .Where(u => u.Nickname == nick)
+            .Single();
+        return user;
+    }
 
     public async void Add(User user)
     {

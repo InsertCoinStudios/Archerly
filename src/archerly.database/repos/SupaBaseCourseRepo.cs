@@ -54,14 +54,15 @@ public class SupaBaseCourseRepo
     
     public async Task<Course?> GetByNameAsync(string cname)
     {
-        var course = await _supabaseClient
-            .From<Course>()
-            .Where(a => a.Name == cname)
-            .Single();
-        
-        getDifficultyString(course);
+            var course = await _supabaseClient
+                .From<Course>()
+                .Where(a => a.Name == cname)
+                .Single();
             
-        return course;
+            if (course == null) throw new Exception("Course not found");
+            
+            getDifficultyString(course);
+            return course;
     }
 
     public async void Insert(Course course)
