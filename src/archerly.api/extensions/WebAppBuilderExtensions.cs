@@ -1,6 +1,8 @@
 using archerly.api.endpoints;
+using archerly.core.hunts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Text;
 namespace archerly.api.extensions;
@@ -86,6 +88,14 @@ public static class WebAppBuilderExtensions
                 NameClaimType = ClaimTypes.NameIdentifier
             };
         });
+        return builder;
+    }
+
+    public static WebApplicationBuilder AddHuntManagerService(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddSingleton(_ =>
+            new HuntManager(true, 5)
+        );
         return builder;
     }
 

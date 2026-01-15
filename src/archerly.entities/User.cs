@@ -12,6 +12,7 @@ public class User : BaseModel
     // Note: does this link it to this table???
     [System.ComponentModel.DataAnnotations.Schema.Column("user_id")]
     public Guid UserId { get; init; }
+    [System.ComponentModel.DataAnnotations.Schema.Column("is_admin")]
     public bool IsAdmin { get; init; }
     [System.ComponentModel.DataAnnotations.Schema.Column("firstname")]
     public string FirstName { get; set; }

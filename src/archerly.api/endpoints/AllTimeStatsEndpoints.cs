@@ -14,7 +14,7 @@ public static class AllTimeStatsEndpoint
 
     private static IResult GetAllTimeStats(ClaimsPrincipal user)
     {
-        if (!JwtHelpers.GetUserId(user, out string? userId))
+        if (!JwtHelpers.TryGetUserId(user, out string? userId))
         {
             return Results.Unauthorized();
         }

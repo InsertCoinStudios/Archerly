@@ -29,7 +29,7 @@ public class HuntManager : IDisposable
             Log.Warning(ex, $"Location: CreateNewPendingHunt Creating PendingHunt for User with Guid ({ownerId})");
         }
         var transitionAction = _sessions.TransitionFromPending;
-        var transferFunc = TransferStrategies.TransferToTop;
+        var transferFunc = TransferStrategies.DissolveOnOwnerLeave;
         PendingHunt pending = new(ownerId, transitionAction, transferFunc);
 
         var dissolveFunc = () => { _sessions.Remove(pending.SessionId); };
@@ -59,6 +59,11 @@ public class HuntManager : IDisposable
                     );
             throw;
         }
+    }
+
+    public void RemoveUserFromSessions(Guid userId)
+    {
+        _sessions.RemovePlayerFromSessions(userId);
     }
 
     public void ActivatePendingHunt(string sessionId)

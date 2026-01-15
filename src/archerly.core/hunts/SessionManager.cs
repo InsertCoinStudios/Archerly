@@ -235,6 +235,30 @@ public class SessionManager : IDisposable
         hunt.Scores.RegisterShot(playerId, animalId, points);
     }
 
+    public void RemovePlayerFromSessions(Guid playerId)
+    {
+        foreach (var hunt in _hunts)
+        {
+            var val = hunt.Value;
+            var session = val.Value;
+            if (session is null)
+            {
+                continue;
+            }
+            session.Players.Remove(playerId);
+        }
+        foreach (var hunt in _pendingHunts)
+        {
+            var val = hunt.Value;
+            var session = val.Value;
+            if (session is null)
+            {
+                continue;
+            }
+            session.Players.Remove(playerId);
+        }
+    }
+
 
     private SessionReference GetSession(string sessionId)
     {
