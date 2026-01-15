@@ -45,16 +45,15 @@ public class UnitTest1
         var course = await courseRepo.GetByNameAsync("Wilde Safari");
         Assert.NotNull(course);
         
-        var all = await courseAnimalRepo.GetAllAsync();
         var animalsInCourse = await courseAnimalRepo.GetByCourseIdAsync(course.Id);
         Assert.NotNull(animalsInCourse);
-        List<Animal> animals = null;
+        List<Animal> animals = new List<Animal>();
         foreach (var animalInCourse in animalsInCourse)
         {
-            var animalModel = await animalRepo.GetByIdAsync(animalInCourse.Id);
+            var animalModel = await animalRepo.GetByIdAsync(animalInCourse.AnimalId);
             Assert.NotNull(animalModel);
             
-            animals?.Add(animalModel);
+            animals.Add(animalModel);
         }
         
         Assert.NotNull(animals);

@@ -28,6 +28,15 @@ public class SupaBaseCourseAnimalsRepo
 
     public async Task<IEnumerable<CourseAnimal>> GetAllAsync()
     {
+        try
+        {
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
         var canimals = await _supabaseClient
             .From<CourseAnimal>()
             .Get();

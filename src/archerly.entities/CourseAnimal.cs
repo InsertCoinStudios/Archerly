@@ -6,7 +6,7 @@ namespace archerly.entities;
 public class CourseAnimal:BaseModel
 {
     [PrimaryKey("id")]
-    public Guid Id { get; init; }
+    public int Id { get; init; }
     [Column("course_id")]
     public Guid CourseId { get; init; }
     [Column("animal_id")]
