@@ -11,8 +11,9 @@ public class User : BaseModel
     // Users are identified using the auth.user.id from supabase
     // Note: does this link it to this table???
     [System.ComponentModel.DataAnnotations.Schema.Column("user_id")]
-    public Guid UserId { get; init; }
-    public bool IsAdmin { get; init; }
+    public Guid UserId { get; set; }
+    [System.ComponentModel.DataAnnotations.Schema.Column("is_admin")]
+    public bool IsAdmin { get; set; }
     [System.ComponentModel.DataAnnotations.Schema.Column("firstname")]
     public string FirstName { get; set; }
     [System.ComponentModel.DataAnnotations.Schema.Column("lastname")]
