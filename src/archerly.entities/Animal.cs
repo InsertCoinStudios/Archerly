@@ -3,7 +3,7 @@ using Supabase.Postgrest.Models;
 
 namespace archerly.entities;
 
-[Supabase.Postgrest.Attributes.Table("animal")]
+[Table("animal")]
 public class Animal : BaseModel
 {
     [PrimaryKey("id")] public Guid Id { get; set; }
