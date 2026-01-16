@@ -70,22 +70,23 @@ public static class WebAppBuilderExtensions
             ?? throw new InvalidOperationException("Supabase:JwtSecret missing");
 
             // Environmental Variable = SUPABASE__ValidIssuer
-            var validIssuer = builder.Configuration["Supabase:ValidIssuer"]
-            ?? throw new InvalidOperationException("Supabase:ValidIssuer missing");
             options.TokenValidationParameters = new TokenValidationParameters
             {
-                ValidateIssuer = true,
-                ValidateAudience = false,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-
-                ValidIssuer = validIssuer,
-                IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(secret)
-            ),
-
                 // 👇 important: map `sub` correctly
-                NameClaimType = ClaimTypes.NameIdentifier
+                NameClaimType = ClaimTypes.NameIdentifier,
+                RoleClaimType = "role",
+
+                ValidateIssuer = false,
+                ValidateAudience = false,
+
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(secret)
+                ),
+
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.FromMinutes(2)
+
             };
         });
         return builder;
