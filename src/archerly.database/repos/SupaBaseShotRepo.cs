@@ -19,11 +19,11 @@ public class SupaBaseShotRepo
         var courses = await _supabaseClient
             .From<Shot>()
             .Get();
-            
+
         return courses.Models;
     }
 
-    public async Task<List<Shot>> GetAllByPlayerAndAnimal(int playerId, Guid animalId)
+    public async Task<List<Shot>> GetAllByPlayerAndAnimal(Guid playerId, Guid animalId)
     {
         var shots = await _supabaseClient
             .From<Shot>()
@@ -32,10 +32,20 @@ public class SupaBaseShotRepo
         return shots.Models;
     }
 
+
+    public async Task<List<Shot>> GetAllByPlayer(Guid playerId)
+    {
+        var shots = await _supabaseClient
+            .From<Shot>()
+            .Where(a => a.UserId == playerId)
+            .Get();
+        return shots.Models;
+    }
+
     public async Task Insert(Shot shot)
     {
         await _operations.Insert(shot);
     }
-    
-    
+
+
 }

@@ -20,7 +20,7 @@ public static class HuntsEndPoint
         app.MapPost("/hunts/{id}/shotvariant", PostHuntScoreVariantById).RequireAuthorization();
         app.MapPost("/hunts/{id}/course", PostHuntCourseById).RequireAuthorization();
         app.MapPost("/hunts/{id}/activate", PostHuntActivateById).RequireAuthorization();
-        app.MapPost("/hunts/{huntId}/animals/{animalId}", PostHuntShotOnTargetByIds).RequireAuthorization();
+        app.MapPost("/hunts/{huntId}/animals/{animalId}/shot/{shotCount}", PostHuntShotOnTargetByIds).RequireAuthorization();
         app.MapGet("/hunts/{id}/stats", GetHuntStats).RequireAuthorization();
         app.MapGet("/hunts/{id}/userstats", GetHuntUserStats).RequireAuthorization();
     }
@@ -180,7 +180,7 @@ public static class HuntsEndPoint
         return Results.Ok();
     }
 
-    private async static Task<IResult> PostHuntShotOnTargetByIds(string huntId, string animalId, ClaimsPrincipal user, HuntManager manager, HuntRegisterShotRequest receivedData)
+    private async static Task<IResult> PostHuntShotOnTargetByIds(string huntId, string animalId, string shotCount, ClaimsPrincipal user, HuntManager manager, HuntRegisterShotRequest receivedData, Supabase.Client client)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(PostHuntShotOnTargetByIds), user, out Guid guid, out IResult? error))
         {
@@ -189,7 +189,10 @@ public static class HuntsEndPoint
         try
         {
             var animalGuid = Guid.Parse(animalId);
-            manager.SaveShot(huntId, guid, animalGuid, receivedData.PointsScored);
+            var shotNumber = int.Parse(shotCount);
+            var shotEntity = manager.SaveShot(huntId, guid, animalGuid, receivedData.PointsScored, shotNumber);
+            var repo = new SupaBaseShotRepo(client);
+            await repo.Insert(shotEntity);
             return Results.Ok();
         }
         catch (Exception e)

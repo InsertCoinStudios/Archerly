@@ -21,7 +21,7 @@ public class SupaBaseCourseAnimalsRepo
             .From<CourseAnimal>()
             .Where(ca => ca.CourseId == id)
             .Get();
-            
+
         Log.Information("Getting course animal with id {id}", id);
         return canimal.Models;
     }
@@ -40,22 +40,24 @@ public class SupaBaseCourseAnimalsRepo
         var canimals = await _supabaseClient
             .From<CourseAnimal>()
             .Get();
-            
+
         return canimals.Models;
 
     }
 
-    public void Insert(CourseAnimal canimal)
+    public async Task Insert(CourseAnimal canimal)
     {
-        _operation.Insert(canimal);   
+        await _operation.Insert(canimal);
     }
 
-    public void Update(CourseAnimal animal)
-    {
-    }
+    public Task Update(Course course)
+        => _supabaseClient.From<Course>()
+            .Where(c => c.Id == course.Id)
+            .Update(course);
 
-    public void Delete(CourseAnimal animal)
-    {
-    }
+    public Task Delete(CourseAnimal animal)
+        => _supabaseClient.From<CourseAnimal>()
+            .Where(ca => ca.Id == animal.Id)
+            .Delete();
 
 }

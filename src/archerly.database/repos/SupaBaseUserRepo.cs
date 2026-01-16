@@ -3,14 +3,14 @@ using Supabase;
 
 namespace archerly.database.repos;
 
-public class SupaBaseUserRepo: IUserRepo
+public class SupaBaseUserRepo
 {
     private readonly Client _supabaseClient;
     public SupaBaseUserRepo(Client supabaseClient)
     {
         _supabaseClient = supabaseClient;
     }
-    
+
     public async Task<User?> GetByUserIdlAsync(Guid userid)
     {
         var user = await _supabaseClient
@@ -19,7 +19,7 @@ public class SupaBaseUserRepo: IUserRepo
             .Single();
         return user;
     }
-    
+
     public async Task<User?> GetByUserNickAsync(string nick)
     {
         var user = await _supabaseClient
@@ -29,14 +29,14 @@ public class SupaBaseUserRepo: IUserRepo
         return user;
     }
 
-    public async void Add(User user)
+    public async Task Add(User user)
     {
         await _supabaseClient
             .From<User>()
             .Insert(user);
     }
 
-    public async void Update(User user)
+    public async Task Update(User user)
     {
         await _supabaseClient
             .From<User>()
@@ -44,7 +44,7 @@ public class SupaBaseUserRepo: IUserRepo
             .Update(user);
     }
 
-    public async void Delete(User user)
+    public async Task Delete(User user)
     {
         await _supabaseClient
             .From<User>()

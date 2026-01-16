@@ -27,7 +27,7 @@ public class SupaBaseCourseRepo
         {
             getDifficultyString(course);
         }
-        
+
         return courses.Models;
     }
 
@@ -41,36 +41,36 @@ public class SupaBaseCourseRepo
 
         course.Difficulty = difficulty.DifficultyName;
     }
-    
+
     public async Task<Course?> GetByIdAsync(Guid id)
     {
         var course = await _supabaseClient
             .From<Course>()
             .Where(a => a.Id == id)
             .Single();
-            
+
         return course;
     }
-    
+
     public async Task<Course?> GetByNameAsync(string cname)
     {
-            var course = await _supabaseClient
-                .From<Course>()
-                .Where(a => a.Name == cname)
-                .Single();
-            
-            if (course == null) throw new Exception("Course not found");
-            
-            getDifficultyString(course);
-            return course;
+        var course = await _supabaseClient
+            .From<Course>()
+            .Where(a => a.Name == cname)
+            .Single();
+
+        if (course == null) throw new Exception("Course not found");
+
+        getDifficultyString(course);
+        return course;
     }
 
-    public async void Insert(Course course)
+    public async Task Insert(Course course)
     {
-        _operation.Insert(course);
+        await _operation.Insert(course);
     }
 
-    public async void Update(Course course)
+    public async Task Update(Course course)
     {
         await _supabaseClient
             .From<Course>()
@@ -79,7 +79,7 @@ public class SupaBaseCourseRepo
 
     }
 
-    public async void Delete(Course course)
+    public async Task Delete(Course course)
     {
         await _supabaseClient
             .From<Course>()
@@ -87,5 +87,5 @@ public class SupaBaseCourseRepo
             .Delete();
     }
 
-    
+
 }

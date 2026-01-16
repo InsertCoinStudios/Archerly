@@ -1,5 +1,7 @@
 
 using archerly.core;
+using archerly.database.repos;
+using Serilog;
 
 namespace archerly.api.endpoints;
 
@@ -24,7 +26,7 @@ public static class RegisterEndpoint
                     statusCode: StatusCodes.Status502BadGateway
                 );
             }
-            if (session.User == null || string.IsNullOrEmpty(session.AccessToken))
+            if (session.User == null || string.IsNullOrEmpty(session.AccessToken) || session.User.Id is null)
             {
                 return Results.Conflict(new RegisterResponse(
                     Success: false,
@@ -33,6 +35,25 @@ public static class RegisterEndpoint
                         "The registration failed since Supabase returned invalid data")
                 ));
             }
+            // 🧱 Create domain user
+            var user = entities.User.NewUserWithId(
+                session.User.Id,
+                request.FirstName,
+                request.LastName,
+                request.Nickname,
+                isAdmin: false
+            );
+            var repo = new SupaBaseUserRepo(client);
+            try
+            {
+                await repo.Add(user);
+            }
+            catch (Exception e)
+            {
+                Log.Warning(e, $"Function: {nameof(PostRegister)}");
+                return Results.InternalServerError(e);
+            }
+
             return Results.Ok();
         }
         catch (Exception ex)
@@ -46,5 +67,5 @@ public static class RegisterEndpoint
     }
 }
 
-public record RegisterRequest(string Email, string Password);
+public record RegisterRequest(string Email, string Password, string Nickname, string FirstName, string LastName);
 public record RegisterResponse(bool Success, ApiError? Error);

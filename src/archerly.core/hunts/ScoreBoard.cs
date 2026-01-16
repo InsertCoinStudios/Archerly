@@ -8,7 +8,7 @@ public class ScoreBoard
 {
     private readonly List<Shot> _shots = new();
     // User Guids
-    private readonly Dictionary<Guid, long> _playerPoints = new();
+    private readonly Dictionary<Guid, int> _playerPoints = new();
     private readonly ShotType _shotType;
     // Guids of the Animals
     private readonly List<Guid> _targets;
@@ -20,24 +20,25 @@ public class ScoreBoard
         _targets = targets;
     }
 
-    public void RegisterShot(Guid Player, Guid Target, long Points)
+    public entities.Shot RegisterShot(Guid Player, Guid Target, int Points, int shotNumber)
     {
         if (!_targets.Contains(Target))
         {
             throw new InvalidTargetForTargetListException(Target, _targets);
         }
-        var shot = new Shot(Player, Target, _shotType, Points);
+        var shot = new Shot(Player, Target, _shotType, Points, shotNumber);
         lock (_lock)
         {
             _shots.Add(shot);
             _playerPoints.AddToCount(Player, Points);
-            // TODO: Persist Data into DB
+            var conv = shot.Convert();
+            return conv;
         }
     }
 
-    public List<KeyValuePair<Guid, long>> GetRanking()
+    public List<KeyValuePair<Guid, int>> GetRanking()
     {
-        List<KeyValuePair<Guid, long>> result;
+        List<KeyValuePair<Guid, int>> result;
         lock (_lock)
         {
             result = _playerPoints

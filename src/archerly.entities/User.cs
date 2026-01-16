@@ -32,4 +32,30 @@ public class User : BaseModel
         user.Nickname = string.Empty;
         return new User();
     }
+
+    public static User NewUser(string firstName, string lastName, string nickname, bool isAdmin)
+    {
+        User user = new User();
+        user.FirstName = firstName;
+        user.LastName = lastName;
+        user.IsAdmin = isAdmin;
+        user.Nickname = nickname;
+        return user;
+    }
+
+
+    public static User NewUserWithId(string id, string firstName, string lastName, string nickname, bool isAdmin)
+    {
+        if (!Guid.TryParse(id, out var guid))
+        {
+            throw new ArgumentException("Invalid user id format", nameof(id));
+        }
+        User user = new User();
+        user.Id = guid;
+        user.FirstName = firstName;
+        user.LastName = lastName;
+        user.IsAdmin = isAdmin;
+        user.Nickname = nickname;
+        return user;
+    }
 }

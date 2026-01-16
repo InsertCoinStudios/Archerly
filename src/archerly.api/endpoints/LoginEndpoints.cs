@@ -45,6 +45,7 @@ public static class LoginEndpoint
         }
         bool isAdmin = user.IsAdmin;
         var response = new LoginResponse(
+            user_id.ToString(),
             jwt,
             isAdmin,
             new ExpirationData(session.ExpiresIn, session.ExpiresAt())
@@ -53,5 +54,5 @@ public static class LoginEndpoint
     }
 }
 public record LoginRequest(string Email, string Password);
-public record LoginResponse(string JWT, bool IsAdmin, ExpirationData Expiration);
+public record LoginResponse(string UserId, string JWT, bool IsAdmin, ExpirationData Expiration);
 public record ExpirationData(long ExpiresInSec, DateTime ExpiresAt);

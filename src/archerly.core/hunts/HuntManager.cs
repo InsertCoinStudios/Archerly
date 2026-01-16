@@ -119,15 +119,15 @@ public class HuntManager : IDisposable
     }
 
     // TODO: Accept Shot Made Call to the Hunt
-    public void SaveShot(string sessionId, Guid playerId, Guid animalId, long points)
+    public entities.Shot SaveShot(string sessionId, Guid playerId, Guid animalId, int points, int shotNumber)
     {
         try
         {
-            _sessions.RegisterShot(sessionId, playerId, animalId, points);
+            return _sessions.RegisterShot(sessionId, playerId, animalId, points, shotNumber);
         }
         catch (Exception e)
         {
-            Log.Warning(e, $"Function: Saveshot ID: {sessionId} Guid: {playerId} ANimalId:{animalId}");
+            Log.Warning(e, $"Function: Saveshot ID: {sessionId} Guid: {playerId} AnimalId:{animalId}");
             throw;
         }
     }

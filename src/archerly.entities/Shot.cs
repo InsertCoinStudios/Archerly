@@ -2,8 +2,9 @@
 using Supabase.Postgrest.Models;
 
 namespace archerly.entities;
+
 [Table("turn_shots")]
-public class Shot:BaseModel
+public class Shot : BaseModel
 {
     [PrimaryKey("id")]
     public int Id { get; init; }
@@ -16,6 +17,6 @@ public class Shot:BaseModel
     [Column("animal_id")]
     public Guid AnimalId { get; set; }
     [Column("user_id")]
-    public int UserId { get; set; }
-    
+    public Guid UserId { get; set; }
+
 }

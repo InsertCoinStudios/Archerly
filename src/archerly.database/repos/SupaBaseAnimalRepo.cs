@@ -19,7 +19,7 @@ namespace archerly.database.repos
                 .From<Animal>()
                 .Where(a => a.Id == id)
                 .Single();
-            
+
             Log.Information("Getting animal with id {id}", id);
             return animal;
         }
@@ -29,7 +29,7 @@ namespace archerly.database.repos
             var animals = await _supabaseClient
                 .From<Animal>()
                 .Get();
-            
+
             return animals.Models;
         }
 
@@ -38,8 +38,8 @@ namespace archerly.database.repos
             await _supabaseClient
                 .From<Animal>()
                 .Insert(animal);
-                
-                Log.Information("New animal {animal} added.", animal);
+
+            Log.Information("New animal {animal} added.", animal);
         }
 
         public async void Update(Animal animal)
@@ -55,6 +55,14 @@ namespace archerly.database.repos
             await _supabaseClient
                 .From<Animal>()
                 .Where(a => a.Id == animal.Id)
+                .Delete();
+        }
+
+        public async void Delete(Guid animal)
+        {
+            await _supabaseClient
+                .From<Animal>()
+                .Where(a => a.Id == animal)
                 .Delete();
         }
     }

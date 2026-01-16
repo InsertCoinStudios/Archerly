@@ -239,10 +239,10 @@ public class SessionManager : IDisposable
         return false;
     }
 
-    public void RegisterShot(string sessionId, Guid playerId, Guid animalId, long points)
+    public entities.Shot RegisterShot(string sessionId, Guid playerId, Guid animalId, int points, int shotNumber)
     {
         var hunt = GetHunt(sessionId);
-        hunt.Scores.RegisterShot(playerId, animalId, points);
+        return hunt.Scores.RegisterShot(playerId, animalId, points, shotNumber);
     }
 
     public AllStats GetStats(string sessionId)
@@ -554,8 +554,8 @@ public class SessionManager : IDisposable
 
 }
 
-public record AllStats(Dictionary<Guid, List<Shot>> ByPlayers, List<KeyValuePair<Guid, long>> Ranking);
-public record UserStats(Guid User, List<Shot> Shots, List<KeyValuePair<Guid, long>> Ranking);
+public record AllStats(Dictionary<Guid, List<Shot>> ByPlayers, List<KeyValuePair<Guid, int>> Ranking);
+public record UserStats(Guid User, List<Shot> Shots, List<KeyValuePair<Guid, int>> Ranking);
 
 public sealed class SessionNotFoundException : Exception, IApiErrorConvertible, IDetailProvider
 {
