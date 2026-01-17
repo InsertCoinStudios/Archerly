@@ -51,6 +51,8 @@ services:
     environment:
       DOTNET_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:5000"
+    volumes:
+      - ./logs:/app/logs
     depends_on:
       - prometheus
       - loki

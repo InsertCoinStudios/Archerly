@@ -17,6 +17,9 @@ RUN dotnet publish "src/archerly.api/archerly.api.csproj" -c $CONFIGURATION -o /
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
+# Create logs directory
+RUN mkdir -p /app/logs
+
 # Copy the published output from the build stage
 COPY --from=build /app/publish .
 
