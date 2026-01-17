@@ -21,14 +21,21 @@ public static class Program
 
         //Setup Loki config either with user credntials or without
         // Address to local or remote Loki server
-        var credentials = new BasicAuthCredentials("http://localhost:3100", "admin", "admin");
-        //var credentials = new NoAuthCredentials("http://localhost:3100"); 
+        //var credentials = new BasicAuthCredentials("http://loki:3100", "admin", "admin");
+        //var credentials = new NoAuthCredentials("http://loki:3100");
 
         Log.Logger = new LoggerConfiguration()
                     .MinimumLevel.Information()
                     .Enrich.FromLogContext()
-                    .WriteTo.LokiHttp(credentials)
+                    //.WriteTo.LokiHttp(credentials)
+                    .WriteTo.File(
+                        path: "/app/logs/archerly.log",        // path inside container
+                        rollingInterval: RollingInterval.Day,  // one file per day
+                        retainedFileCountLimit: 7,             // keep last 7 days
+                        outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"
+                    )
                     .CreateLogger();
+        Log.Information("Logger Configured");
 
         var app = builder.Build();
 
