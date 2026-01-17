@@ -1,6 +1,360 @@
-@src_HostAddress = http://localhost:5122
+### =========================
+### Local variables (file-only)
+### =========================
+@baseUrl = http://localhost:5000
+@auth_token = __runtime_set__
 
-GET {{src_HostAddress}}/weatherforecast/
-Accept: application/json
+#######################################################################
+###                  User Manegement ENDPOINTS                      ###
+#######################################################################
 
-###
+### =========================
+### User Management Vars
+### =========================
+@email = test@example.com
+@password = secret123
+@register_email = newuser@example.com
+@register_password = secret123
+@register_nickname = newbie
+@register_firstName = Alice
+@register_lastName = Smith
+
+
+### =========================
+### Register a new user
+### =========================
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "{{register_email}}",
+  "password": "{{register_password}}",
+  "nickname": "{{register_nickname}}",
+  "firstName": "{{register_firstName}}",
+  "lastName": "{{register_lastName}}"
+}
+> {%
+  if (response.status !== 200) {
+    console.error("Registration failed:", response.body);
+  } else {
+    console.log("Registration succeeded");
+  }
+%}
+
+
+### =========================
+### Login
+### =========================
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+> {%
+  if (response.status !== 200) {
+    throw new Error("Login failed");
+  }
+  client.global.set("auth_token", response.body.jwt);
+%}
+
+### =========================
+### Logout + clear auth token
+### =========================
+POST {{baseUrl}}/logout
+Authorization: Bearer {{auth_token}}
+> {%
+  client.global.clear("auth_token");
+%}
+
+### =========================
+### All Time Stats (protected)
+### =========================
+POST {{baseUrl}}/allTimeStats
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{}
+> {%
+  if (response.status !== 200) {
+    console.error("Failed to fetch all-time stats:\n", response.body);
+  } else {
+    console.log("All-time stats response:\n", response.body);
+  }
+%}
+
+#######################################################################
+###                          ANIMALS ENDPOINTS                      ###
+#######################################################################
+
+### =========================
+### Animal Endpoint Vars
+### =========================
+### TODO: Replace these manually
+@animal_id = 1
+
+### =========================
+### Get all animals
+### =========================
+GET {{baseUrl}}/animals
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+> {%
+  console.log("Get all animals response:\n", response.body);
+%}
+
+### =========================
+### Get animal by ID
+### =========================
+GET {{baseUrl}}/animals/{{animal_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+> {%
+  console.log("Get animal by ID response:\n", response.body);
+%}
+
+### =========================
+### Create a new animal
+### =========================
+POST {{baseUrl}}/animals
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "Lion",
+  "imageUrl": "https://example.com/lion.png"
+}
+> {%
+  console.log("Post animal response:\n", response.body);
+%}
+
+### =========================
+### Update an existing animal
+### =========================
+PUT {{baseUrl}}/animals/{{animal_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "Tiger",
+  "imageUrl": "https://example.com/tiger.png"
+}
+> {%
+  console.log("Put animal response:\n", response.body);
+%}
+
+### =========================
+### Delete an animal
+### =========================
+DELETE {{baseUrl}}/animals/{{animal_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+> {%
+  console.log("Delete animal response:\n", response.body);
+%}
+
+#######################################################################
+###                          COURSES ENDPOINTS                      ###
+#######################################################################
+
+### =========================
+### Course Endpoint Vars
+### =========================
+### TODO: Replace these manually
+@create_course_animal_ids = ["animal-id-1","animal-id-2"]
+@update_course_animal_ids = ["animal-id-3","animal-id-4"]
+
+# Course ID
+@course_id = 1
+
+### =========================
+### Get all courses
+### =========================
+GET {{baseUrl}}/courses
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+> {%
+  console.log("Get all courses response:\n", response.body);
+%}
+
+### =========================
+### Get course by ID
+### =========================
+GET {{baseUrl}}/courses/{{course_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+> {%
+  console.log("Get course by ID response:\n", response.body);
+%}
+
+### =========================
+### Create a new course
+### =========================
+POST {{baseUrl}}/courses
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "course": {
+    "name": "Beginner Archery",
+    "animalIds": {{create_course_animal_ids}}
+  }
+}
+> {%
+  console.log("Post course response:\n", response.body);
+%}
+
+### =========================
+### Update an existing course
+### =========================
+PUT {{baseUrl}}/courses/{{course_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "course": {
+    "name": "Advanced Archery",
+    "animalIds": {{update_course_animal_ids}}
+  }
+}
+> {%
+  console.log("Put course response:\n", response.body);
+%}
+
+### =========================
+### Delete a course
+### =========================
+DELETE {{baseUrl}}/courses/{{course_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+> {%
+  console.log("Delete course response:\n", response.body);
+%}
+
+#######################################################################
+###                          HUNTS ENDPOINTS                        ###
+#######################################################################
+
+### =========================
+### Hunt Endpoint Vars
+### =========================
+# TODO: Replace these manually
+@hunt_id = <manually-set-hunt-id>
+@course_id_for_hunt = <manually-set-course-id>
+@animal_id_for_hunt = <manually-set-animal-id>
+@shot_count = 1
+@points_scored = 5
+
+### =========================
+### Create a new hunt
+### =========================
+POST {{baseUrl}}/hunts
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+> {%
+  console.log("Post hunt response:\n", response.body);
+%}
+
+### =========================
+### Get hunt by ID
+### =========================
+GET {{baseUrl}}/hunts/{{hunt_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+> {%
+  console.log("Get hunt by ID response:\n", response.body);
+%}
+
+### =========================
+### Join a hunt
+### =========================
+POST {{baseUrl}}/hunts/{{hunt_id}}/join
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+> {%
+  console.log("Post hunt join response:\n", response.body);
+%}
+
+### =========================
+### Leave a hunt
+### =========================
+POST {{baseUrl}}/hunts/{{hunt_id}}/leave
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+> {%
+  console.log("Post hunt leave response:\n", response.body);
+%}
+
+### =========================
+### Set hunt scoring variant
+### =========================
+POST {{baseUrl}}/hunts/{{hunt_id}}/shotvariant
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "variant": 1
+}
+> {%
+  console.log("Post hunt score variant response:\n", response.body);
+%}
+
+### =========================
+### Assign course to hunt
+### =========================
+POST {{baseUrl}}/hunts/{{hunt_id}}/course
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "courseId": "{{course_id_for_hunt}}"
+}
+> {%
+  console.log("Post hunt course response:\n", response.body);
+%}
+
+### =========================
+### Activate hunt
+### =========================
+POST {{baseUrl}}/hunts/{{hunt_id}}/activate
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+> {%
+  console.log("Post hunt activate response:\n", response.body);
+%}
+
+### =========================
+### Register a shot for an animal
+### =========================
+POST {{baseUrl}}/hunts/{{hunt_id}}/animals/{{animal_id_for_hunt}}/shot/{{shot_count}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "pointsScored": {{points_scored}}
+}
+> {%
+  console.log("Post hunt shot response:\n", response.body);
+%}
+
+### =========================
+### Get hunt stats
+### =========================
+GET {{baseUrl}}/hunts/{{hunt_id}}/stats
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+> {%
+  console.log("Get hunt stats response:\n", response.body);
+%}
+
+### =========================
+### Get hunt user stats
+### =========================
+GET {{baseUrl}}/hunts/{{hunt_id}}/userstats
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+> {%
+  console.log("Get hunt user stats response:\n", response.body);
+%}
+
