@@ -4,7 +4,7 @@ using Supabase;
 
 namespace archerly.database.repos
 {
-    public class SupaBaseAnimalRepo : IAnimalRepo
+    public class SupaBaseAnimalRepo
     {
         private readonly Client _supabaseClient;
 
@@ -33,16 +33,16 @@ namespace archerly.database.repos
             return animals.Models;
         }
 
-        public async void Insert(Animal animal)
+        public async Task Insert(Animal animal)
         {
-            await _supabaseClient
+            var anim = await _supabaseClient
                 .From<Animal>()
                 .Insert(animal);
 
             Log.Information("New animal {animal} added.", animal);
         }
 
-        public async void Update(Animal animal)
+        public async Task Update(Animal animal)
         {
             await _supabaseClient
                 .From<Animal>()
@@ -50,7 +50,7 @@ namespace archerly.database.repos
                 .Update(animal);
         }
 
-        public async void Delete(Animal animal)
+        public async Task Delete(Animal animal)
         {
             await _supabaseClient
                 .From<Animal>()
