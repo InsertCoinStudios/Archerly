@@ -54,10 +54,7 @@ public class UserRepository : IUserRepository
 
     public async Task DeleteAsync(User user)
     {
-        await _supabaseClient
-            .From<User>()
-            .Where(u => u.Id == user.Id)
-            .Delete();
+        await DeleteAsync(user.Id);
     }
 
     public async Task<List<User>> GetAllAsync()
@@ -68,5 +65,13 @@ public class UserRepository : IUserRepository
 
         // Return the list of users (empty list if none)
         return response.Models ?? new List<User>();
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        await _supabaseClient
+            .From<User>()
+            .Where(u => u.Id == id)
+            .Delete();
     }
 }

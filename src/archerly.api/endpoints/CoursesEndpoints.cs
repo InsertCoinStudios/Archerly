@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using archerly.api.helpers;
 using archerly.database.repos;
+using archerly.database.repos.interfaces;
+using archerly.entities;
 using Serilog;
 
 namespace archerly.api.endpoints;
@@ -23,17 +25,16 @@ public static class CoursesEndpoint
     }
 
     // Consumer has to resolve the Animals  himself by suing the provided IDs
-    private async static Task<IResult> GetCourses(Supabase.Client client, ClaimsPrincipal user)
+    private async static Task<IResult> GetCourses(Supabase.Client client, ClaimsPrincipal user, IHydratedCourseRepository repo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(GetCourses), user, out Guid guid, out IResult? error))
         {
             return error;
         }
-        var service = new CourseService(client);
         try
         {
-            var courses = await service.GetAllAsync();
-            return Results.Ok(new AllCourseResponse(courses));
+            var courses = await repo.GetAllAsync();
+            return Results.Ok(new AllHydratedCourseResponse(courses));
         }
         catch (Exception e)
         {
@@ -43,7 +44,7 @@ public static class CoursesEndpoint
     }
 
     // Consumer has to resolve the Animals  himself by suing the provided IDs
-    private async static Task<IResult> GetCourseById(string id, Supabase.Client client, ClaimsPrincipal user)
+    private async static Task<IResult> GetCourseById(string id, Supabase.Client client, ClaimsPrincipal user, IHydratedCourseRepository repo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(GetCourseById), user, out Guid guid, out IResult? error))
         {
@@ -53,8 +54,8 @@ public static class CoursesEndpoint
         try
         {
             var courseGuid = Guid.Parse(id);
-            var course = await service.GetByIdAsync(courseGuid) ?? throw new NullReferenceException($"Function: {nameof(GetCourseById)}");
-            return Results.Ok(new CourseResponse(course));
+            var course = await repo.GetByIdAsync(courseGuid) ?? throw new NullReferenceException($"Function: {nameof(GetCourseById)}");
+            return Results.Ok(new HydratedCourseResponse(course));
         }
         catch (Exception e)
         {
@@ -63,16 +64,16 @@ public static class CoursesEndpoint
         }
     }
 
-    private async static Task<IResult> PostCourse(ClaimsPrincipal user, CourseRequest request, Supabase.Client client)
+
+    private async static Task<IResult> PostCourse(ClaimsPrincipal user, HydratedCourseRequest request, IHydratedCourseRepository repo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(PostCourse), user, out Guid guid, out IResult? error))
         {
             return error;
         }
-        var service = new CourseService(client);
         try
         {
-            await service.InsertCourseAsync(request.Course);
+            await repo.AddAsync(request.Course);
             return Results.Ok();
         }
         catch (Exception e)
@@ -82,17 +83,16 @@ public static class CoursesEndpoint
         }
     }
 
-    private async static Task<IResult> DeleteCourseById(string id, ClaimsPrincipal user, Supabase.Client client)
+    private async static Task<IResult> DeleteCourseById(string id, ClaimsPrincipal user, IHydratedCourseRepository repo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(DeleteCourseById), user, out Guid guid, out IResult? error))
         {
             return error;
         }
-        var service = new CourseService(client);
         try
         {
             var courseGuid = Guid.Parse(id);
-            await service.DeleteCourseAsync(courseGuid);
+            await repo.DeleteAsync(courseGuid);
             return Results.Ok();
         }
         catch (Exception e)
@@ -102,18 +102,18 @@ public static class CoursesEndpoint
         }
     }
 
-    private async static Task<IResult> PutCourseById(string id, ClaimsPrincipal user, CourseRequest request, Supabase.Client client)
+
+    private async static Task<IResult> PutCourseById(string id, ClaimsPrincipal user, HydratedCourseRequest request, IHydratedCourseRepository repo)
     {
 
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(PutCourseById), user, out Guid guid, out IResult? error))
         {
             return error;
         }
-        var service = new CourseService(client);
         try
         {
             var courseGuid = Guid.Parse(id);
-            await service.UpdateCourseAsync(courseGuid, request.Course);
+            await repo.UpdateAsync(request.Course);
             return Results.Ok();
         }
         catch (Exception e)
@@ -122,8 +122,9 @@ public static class CoursesEndpoint
             return Results.InternalServerError(e);
         }
     }
+
 }
 
-public record CourseRequest(CourseDto Course);
-public record CourseResponse(CourseDto Course);
-public record AllCourseResponse(List<CourseDto> Courses);
+public record HydratedCourseRequest(HydratedCourse Course);
+public record HydratedCourseResponse(HydratedCourse Course);
+public record AllHydratedCourseResponse(List<HydratedCourse> Courses);

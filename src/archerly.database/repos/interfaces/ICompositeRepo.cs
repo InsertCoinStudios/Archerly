@@ -28,4 +28,5 @@ public interface ICompositeRepository<TEntity, TKey1, TKey2>
     /// Delete entity by composite primary key
     /// </summary>
     Task DeleteAsync(TKey1 key1, TKey2 key2);
+    Task DeleteAsync(TEntity entity);
 }

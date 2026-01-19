@@ -65,10 +65,7 @@ public class CourseAnimalRepository : ICourseAnimalRepository
     }
     public async Task DeleteAsync(CourseAnimal entity)
     {
-        await _supabaseClient
-            .From<CourseAnimal>()
-            .Where(ca => ca.CourseId == entity.CourseId && ca.AnimalId == entity.AnimalId)
-            .Delete();
+        await DeleteAsync(entity.CourseId, entity.AnimalId);
     }
 
     /* ============================= */

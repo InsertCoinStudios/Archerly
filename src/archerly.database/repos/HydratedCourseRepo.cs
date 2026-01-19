@@ -164,19 +164,22 @@ public class HydratedCourseRepository : IHydratedCourseRepository
 
     public async Task DeleteAsync(HydratedCourse entity)
     {
-        // 1️⃣ Delete all course-animal links
-        var links = await _courseAnimalRepo.GetByCourseIdAsync(entity.Id);
+        await DeleteAsync(entity.Id);
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        var links = await _courseAnimalRepo.GetByCourseIdAsync(id);
         foreach (var link in links)
         {
             await _courseAnimalRepo.DeleteAsync(link);
         }
 
         // 2️⃣ Delete the course itself
-        var courseToDelete = await _courseRepo.GetByIdAsync(entity.Id);
+        var courseToDelete = await _courseRepo.GetByIdAsync(id);
         if (courseToDelete != null)
         {
             await _courseRepo.DeleteAsync(courseToDelete);
         }
     }
-
 }

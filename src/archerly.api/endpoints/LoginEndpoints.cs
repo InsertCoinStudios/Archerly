@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using archerly.api.helpers;
 using archerly.core;
 using archerly.database.repos;
+using archerly.database.repos.interfaces;
 using Serilog;
 
 namespace archerly.api.endpoints;
@@ -14,7 +15,7 @@ public static class LoginEndpoint
         app.MapPost("/login", PostLogin);
     }
 
-    private static async Task<IResult> PostLogin(LoginRequest request, Supabase.Client client)
+    private static async Task<IResult> PostLogin(LoginRequest request, IUserRepository repo, Supabase.Client client)
     {
         var session = await client.Auth.SignIn(request.Email, request.Password);
         if (session is null)
@@ -35,7 +36,7 @@ public static class LoginEndpoint
             return error;
         }
 
-        var user = await new SupaBaseUserRepo(client).GetByUserIdlAsync(user_id);
+        var user = await repo.GetByIdAsync(user_id);
         if (user is null)
         {
             Log.Error($"Endpoint Login: Retrieved User is null");

@@ -1,6 +1,7 @@
 
 using archerly.core;
 using archerly.database.repos;
+using archerly.database.repos.interfaces;
 using Serilog;
 
 namespace archerly.api.endpoints;
@@ -13,7 +14,7 @@ public static class RegisterEndpoint
     {
         app.MapPost("/register", PostRegister);
     }
-    private async static Task<IResult> PostRegister(RegisterRequest request, Supabase.Client client)
+    private async static Task<IResult> PostRegister(RegisterRequest request, Supabase.Client client, IUserRepository repo)
     {
         try
         {
@@ -35,18 +36,18 @@ public static class RegisterEndpoint
                         "The registration failed since Supabase returned invalid data")
                 ));
             }
+            var guid = Guid.Parse(session.User.Id);
             // 🧱 Create domain user
             var user = entities.User.NewUserWithId(
-                session.User.Id,
+                guid,
                 request.FirstName,
                 request.LastName,
                 request.Nickname,
                 isAdmin: false
             );
-            var repo = new SupaBaseUserRepo(client);
             try
             {
-                await repo.Add(user);
+                await repo.AddAsync(user);
             }
             catch (Exception e)
             {

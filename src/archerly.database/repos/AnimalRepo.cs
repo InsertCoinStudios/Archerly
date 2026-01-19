@@ -66,9 +66,14 @@ public class AnimalRepository : IAnimalRepository
 
     public async Task DeleteAsync(Animal animal)
     {
+        await DeleteAsync(animal.Id);
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
         await _supabaseClient
             .From<Animal>()
-            .Where(a => a.Id == animal.Id)
+            .Where(a => a.Id == id)
             .Delete();
     }
 }

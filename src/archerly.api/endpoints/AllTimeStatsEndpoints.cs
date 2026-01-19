@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using archerly.api.helpers;
 using archerly.database.repos;
+using archerly.database.repos.interfaces;
 using Serilog;
 
 namespace archerly.api.endpoints;
@@ -16,17 +17,16 @@ public static class AllTimeStatsEndpoint
         app.MapPost("/allTimeStats", GetAllTimeStats);
     }
 
-    private static async Task<IResult> GetAllTimeStats(ClaimsPrincipal user, Supabase.Client client)
+    private static async Task<IResult> GetAllTimeStats(ClaimsPrincipal user, IShotRepository repo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(GetAllTimeStats), user, out Guid guid, out IResult? error))
         {
             return error;
         }
-        var repo = new SupaBaseShotRepo(client);
         List<entities.Shot> shots;
         try
         {
-            shots = await repo.GetAllByPlayer(guid);
+            shots = await repo.GetAllByPlayerAsync(guid);
         }
         catch (Exception e)
         {
@@ -70,12 +70,12 @@ public static class AllTimeStatsEndpoint
         return shot switch
         {
             // Zweipfeil: always kill on 20
-            { Kind: "TwoShot", Score: 20 } => true,
+            { Kind: 2, Score: 20 } => true,
 
             // Dreipfeil rules
-            { Kind: "ThreeShot", ShotNumber: 1, Score: 20 } => true,
-            { Kind: "ThreeShot", ShotNumber: 2, Score: 16 } => true,
-            { Kind: "ThreeShot", ShotNumber: 3, Score: 10 } => true,
+            { Kind: 3, ShotNumber: 1, Score: 20 } => true,
+            { Kind: 3, ShotNumber: 2, Score: 16 } => true,
+            { Kind: 3, ShotNumber: 3, Score: 10 } => true,
 
             // everything else
             _ => false

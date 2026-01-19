@@ -5,5 +5,4 @@ public interface ICourseAnimalRepository : ICompositeRepository<CourseAnimal, Gu
 {
     Task<List<CourseAnimal>> GetByCourseIdAsync(Guid courseId);
     Task<List<CourseAnimal>> GetByAnimalIdAsync(Guid animalId);
-    public Task DeleteAsync(CourseAnimal entity);
 }

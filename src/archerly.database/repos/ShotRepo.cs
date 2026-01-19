@@ -50,10 +50,7 @@ public class ShotRepository : IShotRepository
 
     public async Task DeleteAsync(Shot shot)
     {
-        await _supabaseClient
-            .From<Shot>()
-            .Where(s => s.Id == shot.Id)
-            .Delete();
+        await DeleteAsync(shot.Id);
     }
 
     // Shot-specific queries ------------------------
@@ -86,5 +83,13 @@ public class ShotRepository : IShotRepository
             .Get();
 
         return response.Models ?? new List<Shot>();
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        await _supabaseClient
+            .From<Shot>()
+            .Where(s => s.Id == id)
+            .Delete();
     }
 }

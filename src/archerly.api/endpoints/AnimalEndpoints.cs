@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using archerly.api.helpers;
 using archerly.database.repos;
+using archerly.database.repos.interfaces;
 using archerly.entities;
 using Serilog;
 
@@ -22,9 +23,8 @@ public static class AnimalEndpoints
         app.MapPut("/animals/{id}", PutAnimalById);
     }
 
-    private async static Task<IResult> GetAnimals(Supabase.Client client)
+    private async static Task<IResult> GetAnimals(IAnimalRepository repo)
     {
-        var repo = new SupaBaseAnimalRepo(client);
         try
         {
             var result = await repo.GetAllAsync();
@@ -36,9 +36,8 @@ public static class AnimalEndpoints
             return Results.InternalServerError(e);
         }
     }
-    private async static Task<IResult> GetAnimalById(string id, Supabase.Client client)
+    private async static Task<IResult> GetAnimalById(string id, IAnimalRepository repo)
     {
-        var repo = new SupaBaseAnimalRepo(client);
         try
         {
             if (!Guid.TryParse(id, out Guid guid))
@@ -56,7 +55,7 @@ public static class AnimalEndpoints
         }
     }
 
-    private async static Task<IResult> PostAnimal(ClaimsPrincipal user, PostAnimalRequest request, Supabase.Client client)
+    private async static Task<IResult> PostAnimal(ClaimsPrincipal user, PostAnimalRequest request, IAnimalRepository repo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(PostAnimal), user, out Guid guid, out IResult? error))
         {
@@ -65,8 +64,7 @@ public static class AnimalEndpoints
         try
         {
             var animal = Animal.NewAnimal(request.Name, request.ImageUrl);
-            var repo = new SupaBaseAnimalRepo(client);
-            repo.Insert(animal);
+            await repo.AddAsync(animal);
             return Results.Ok();
         }
         catch (Exception e)
@@ -76,7 +74,7 @@ public static class AnimalEndpoints
         }
     }
 
-    private async static Task<IResult> DeleteAnimalById(string id, ClaimsPrincipal user, Supabase.Client client)
+    private async static Task<IResult> DeleteAnimalById(string id, ClaimsPrincipal user, IAnimalRepository repo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(PostAnimal), user, out Guid guid, out IResult? error))
         {
@@ -88,8 +86,7 @@ public static class AnimalEndpoints
             {
                 return Results.InternalServerError($"Failed id to Guid Parse");
             }
-            var repo = new SupaBaseAnimalRepo(client);
-            repo.Delete(identificator);
+            await repo.DeleteAsync(identificator);
             return Results.Ok();
         }
         catch (Exception e)
@@ -98,7 +95,7 @@ public static class AnimalEndpoints
             return Results.InternalServerError(e);
         }
     }
-    private async static Task<IResult> PutAnimalById(string id, ClaimsPrincipal user, Supabase.Client client, PutAnimalRequest request)
+    private async static Task<IResult> PutAnimalById(string id, ClaimsPrincipal user, PutAnimalRequest request, IAnimalRepository repo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(PostAnimal), user, out Guid guid, out IResult? error))
         {
@@ -110,9 +107,8 @@ public static class AnimalEndpoints
             {
                 return Results.InternalServerError($"Failed id to Guid Parse");
             }
-            var repo = new SupaBaseAnimalRepo(client);
             var animal = Animal.NewAnimalWithId(identificator, request.Name, request.ImageUrl);
-            repo.Update(animal);
+            await repo.UpdateAsync(animal);
             return Results.Ok();
         }
         catch (Exception e)

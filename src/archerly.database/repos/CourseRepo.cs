@@ -52,13 +52,9 @@ public class CourseRepository : ICourseRepository
 
     public async Task DeleteAsync(Course course)
     {
-        await _supabaseClient
-            .From<Course>()
-            .Where(c => c.Id == course.Id)
-            .Delete();
+        await DeleteAsync(course.Id);
     }
 
-    // Course-specific ------------------------------
 
     public async Task<Course?> GetByNameAsync(string name)
     {
@@ -66,5 +62,13 @@ public class CourseRepository : ICourseRepository
             .From<Course>()
             .Where(c => c.Name == name)
             .Single();
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        await _supabaseClient
+            .From<Course>()
+            .Where(c => c.Id == id)
+            .Delete();
     }
 }
