@@ -6,16 +6,18 @@ namespace archerly.entities;
 public class Shot:BaseModel
 {
     [PrimaryKey("id")]
-    public int Id { get; init; }
-    [Column("shot_number")]
+    public Guid Id { get; init; }
+    [Column("huntid")]
+    public Guid HuntId { get; init; }
+    [Column("shotnumber")]
     public int ShotNumber { get; set; }
     [Column("kind")]
-    public string Kind { get; set; }
+    public int Kind { get; set; }
     [Column("score")]
     public int Score { get; set; }
-    [Column("animal_id")]
+    [Column("animalid")]
     public Guid AnimalId { get; set; }
-    [Column("user_id")]
-    public int UserId { get; set; }
+    [Column("userid")]
+    public Guid UserId { get; set; }
     
 }

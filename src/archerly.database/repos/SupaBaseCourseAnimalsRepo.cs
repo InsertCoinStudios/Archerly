@@ -45,9 +45,9 @@ public class SupaBaseCourseAnimalsRepo
 
     }
 
-    public void Insert(CourseAnimal canimal)
+    public async void Insert(CourseAnimal canimal)
     {
-        _operation.Insert(canimal);   
+        await _operation.Insert(canimal);   
     }
 
     public void Update(CourseAnimal animal)

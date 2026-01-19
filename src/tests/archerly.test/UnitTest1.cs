@@ -8,9 +8,34 @@ public class UnitTest1
 {
     
     string url = "https://xvbnlycdrewhoyhulylj.supabase.co";
-    string key = "sb_publishable_3ASU1hTVILnRVJtfLRdE2g_GSTeg8Sd";
+    string key = "sb_secret__iF0rq2RmPNDb3LetO14Ow_qHFaNQad";
     
     //This Test is so I know if I get any models back or naw and can access its attributes
+    [Fact]
+    private async Task MakeBasicDataSet()
+    {
+        var options = new Supabase.SupabaseOptions
+        {
+            AutoConnectRealtime = true
+        };
+
+        var supabase = new Supabase.Client(url, key, options);
+        await supabase.InitializeAsync();
+
+        SupaBaseAnimalRepo animalRepo = new SupaBaseAnimalRepo(supabase);
+        Animal newAnimal = new Animal();
+        newAnimal.Name = "Tiger";
+        newAnimal.ImageUrl = "https://imgur.com/gallery/don-t-touch-son-NV8MUC1#uty3mLm";
+        
+        animalRepo.Insert(newAnimal);
+        var animal = await animalRepo.GetAllAsync();
+        string species = animal.First().Name;
+        
+        SupaBaseCourseRepo courseRepo = new SupaBaseCourseRepo(supabase);
+        Course newCourse = new Course();
+        newCourse.Name = "Safari";
+
+    }
     [Fact]
     private async Task SetUp()
     {   var options = new Supabase.SupabaseOptions
@@ -59,7 +84,7 @@ public class UnitTest1
         
         Assert.NotNull(animals);
     }
-   
+   [Fact]
     private async void MakeNewUser()
     {
         User user = new User();
@@ -95,8 +120,8 @@ public class UnitTest1
         await supabase.InitializeAsync();
         
         SupaBaseUserRepo userRepo = new SupaBaseUserRepo(supabase);
-        var user1 = userRepo.GetByUserNickAsync("JohnDoe");
-        var user2 = userRepo.GetByUserNickAsync("Test");
+        var user1 = await userRepo.GetByUserNickAsync("JohnDoe");
+        var user2 =await userRepo.GetByUserNickAsync("Test");
         
         //Get Course
         var courseRepo = new SupaBaseCourseRepo(supabase);
@@ -120,8 +145,8 @@ public class UnitTest1
         //Shoot first Shot user 1
         Shot shot = new Shot();
         shot.AnimalId = animals.First().Id;
-        shot.UserId = user1.Id;
-        shot.Kind = "2";
+        shot.UserId = user1.SupaId;
+        shot.Kind = 2;
         shot.Score = 25;
         shot.ShotNumber = 1;
         

@@ -23,7 +23,7 @@ public class SupaBaseShotRepo
         return courses.Models;
     }
 
-    public async Task<List<Shot>> GetAllByPlayerAndAnimal(int playerId, Guid animalId)
+    public async Task<List<Shot>> GetAllByPlayerAndAnimal(Guid playerId, Guid animalId)
     {
         var shots = await _supabaseClient
             .From<Shot>()

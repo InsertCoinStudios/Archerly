@@ -1,5 +1,6 @@
 ﻿using archerly.entities;
 using Supabase;
+using static archerly.entities.User;
 
 namespace archerly.database.repos;
 
@@ -40,7 +41,7 @@ public class SupaBaseUserRepo: IUserRepo
     {
         await _supabaseClient
             .From<User>()
-            .Where(u => u.Id == user.Id)
+            .Where(u => u.SupaId == user.SupaId)
             .Update(user);
     }
 
@@ -48,7 +49,7 @@ public class SupaBaseUserRepo: IUserRepo
     {
         await _supabaseClient
             .From<User>()
-            .Where(u => u.Id == user.Id)
+            .Where(u => u.SupaId == user.SupaId)
             .Delete();
     }
 }

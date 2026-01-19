@@ -9,8 +9,8 @@ public class Animal : BaseModel
     [PrimaryKey("id")] public Guid Id { get; set; }
 
     // In Db this is currently Species
-    [Column("species")] public string Name { get; set; }
+    [Column("name")] public string Name { get; set; }
 
-    [Column("image_url")] public string ImageUrl { get; set; }
+    [Column("imageurl")] public string ImageUrl { get; set; }
 
 }

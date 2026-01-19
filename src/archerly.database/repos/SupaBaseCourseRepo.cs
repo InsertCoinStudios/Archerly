@@ -22,24 +22,8 @@ public class SupaBaseCourseRepo
         var courses = await _supabaseClient
             .From<Course>()
             .Get();
-
-        foreach (var course in courses.Models)
-        {
-            getDifficultyString(course);
-        }
         
         return courses.Models;
-    }
-
-    private async void getDifficultyString(Course course)
-    {
-        var difficulty = await _supabaseClient
-            .From<DifficultyM>()
-            .Select("id, difficulty")
-            .Where(d => d.Id == course.DifficultyId)
-            .Single();
-
-        course.Difficulty = difficulty.DifficultyName;
     }
     
     public async Task<Course?> GetByIdAsync(Guid id)
@@ -61,13 +45,12 @@ public class SupaBaseCourseRepo
             
             if (course == null) throw new Exception("Course not found");
             
-            getDifficultyString(course);
             return course;
     }
 
     public async void Insert(Course course)
     {
-        _operation.Insert(course);
+        await _operation.Insert(course);
     }
 
     public async void Update(Course course)
