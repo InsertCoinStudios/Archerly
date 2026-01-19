@@ -13,7 +13,7 @@ public sealed record Shot(Guid Player, Guid Target, ShotType Variant, int Points
             AnimalId = this.Target,
             Score = this.Points,
             ShotNumber = this.ShotNumber,
-            Kind = this.Variant.ToString()
+            Kind = (int)this.Variant,
         };
         return result;
     }
