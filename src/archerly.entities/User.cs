@@ -3,59 +3,53 @@ using Supabase.Postgrest.Models;
 
 namespace archerly.entities;
 
-[System.ComponentModel.DataAnnotations.Schema.Table("players")]
+[Table("user")]
 public class User : BaseModel
 {
-    [PrimaryKey("player_id")]
+    // Matches the 'id uuid' primary key in your table
+    [PrimaryKey("id")]
     public Guid Id { get; set; }
-    // Users are identified using the auth.user.id from supabase
-    // Note: does this link it to this table???
-    [System.ComponentModel.DataAnnotations.Schema.Column("user_id")]
-    public Guid UserId { get; set; }
-    [System.ComponentModel.DataAnnotations.Schema.Column("is_admin")]
+
+    [Column("isadmin")]
     public bool IsAdmin { get; set; }
-    [System.ComponentModel.DataAnnotations.Schema.Column("firstname")]
-    public string FirstName { get; set; }
-    [System.ComponentModel.DataAnnotations.Schema.Column("lastname")]
-    public string LastName { get; set; }
-    [System.ComponentModel.DataAnnotations.Schema.Column("nickname")]
-    public string Nickname { get; set; }
 
-    public static User Empty()
+    [Column("firstname")]
+    public string FirstName { get; set; } = string.Empty;
+
+    [Column("lastname")]
+    public string LastName { get; set; } = string.Empty;
+
+    [Column("nickname")]
+    public string Nickname { get; set; } = string.Empty;
+    [Column("highscore")]
+    public long? HighScore { get; set; }
+
+    // Empty user for defaults
+    public static User Empty() => new User
     {
-        var user = new User();
-        user.Id = Guid.Empty;
-        user.UserId = Guid.Empty;
-        user.IsAdmin = false;
-        user.FirstName = string.Empty;
-        user.LastName = string.Empty;
-        user.Nickname = string.Empty;
-        return new User();
-    }
+        Id = Guid.Empty,
+        IsAdmin = false,
+        FirstName = string.Empty,
+        LastName = string.Empty,
+        Nickname = string.Empty
+    };
 
-    public static User NewUser(string firstName, string lastName, string nickname, bool isAdmin)
+    // Factory method for creating a new user (no ID, let DB generate)
+    public static User NewUser(string firstName, string lastName, string nickname, bool isAdmin) => new User
     {
-        User user = new User();
-        user.FirstName = firstName;
-        user.LastName = lastName;
-        user.IsAdmin = isAdmin;
-        user.Nickname = nickname;
-        return user;
-    }
+        FirstName = firstName,
+        LastName = lastName,
+        Nickname = nickname,
+        IsAdmin = isAdmin
+    };
 
-
-    public static User NewUserWithId(string id, string firstName, string lastName, string nickname, bool isAdmin)
+    // Factory method if you already have an ID (e.g., from Supabase Auth)
+    public static User NewUserWithId(Guid id, string firstName, string lastName, string nickname, bool isAdmin) => new User
     {
-        if (!Guid.TryParse(id, out var guid))
-        {
-            throw new ArgumentException("Invalid user id format", nameof(id));
-        }
-        User user = new User();
-        user.Id = guid;
-        user.FirstName = firstName;
-        user.LastName = lastName;
-        user.IsAdmin = isAdmin;
-        user.Nickname = nickname;
-        return user;
-    }
+        Id = id,
+        FirstName = firstName,
+        LastName = lastName,
+        Nickname = nickname,
+        IsAdmin = isAdmin
+    };
 }

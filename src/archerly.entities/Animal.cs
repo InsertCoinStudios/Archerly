@@ -6,12 +6,14 @@ namespace archerly.entities;
 [Table("animal")]
 public class Animal : BaseModel
 {
-    [PrimaryKey("id")] public Guid Id { get; set; }
+    [PrimaryKey("id")]
+    public Guid Id { get; set; }
 
-    // In Db this is currently Species
-    [Column("species")] public string Name { get; set; }
+    [Column("name")]
+    public string Name { get; set; } = string.Empty;
 
-    [Column("image_url")] public string ImageUrl { get; set; }
+    [Column("imageurl")]
+    public string ImageUrl { get; set; } = string.Empty;
 
     public static Animal NewAnimal(string name, string imageUrl)
     {
