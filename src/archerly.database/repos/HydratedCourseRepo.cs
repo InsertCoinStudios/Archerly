@@ -5,15 +5,18 @@ namespace archerly.database.repos;
 
 public class HydratedCourseRepository : IHydratedCourseRepository
 {
-    private readonly CourseRepository _courseRepo;
-    private readonly CourseAnimalRepository _courseAnimalRepo;
-    private readonly AnimalRepository _animalRepo;
+    private readonly Supabase.Client _client;
+    private readonly ICourseRepository _courseRepo;
+    private readonly ICourseAnimalRepository _courseAnimalRepo;
+    private readonly IAnimalRepository _animalRepo;
 
     public HydratedCourseRepository(
-        CourseRepository courseRepo,
-        CourseAnimalRepository courseAnimalRepo,
-        AnimalRepository animalRepo)
+        Client client,
+        ICourseRepository courseRepo,
+        ICourseAnimalRepository courseAnimalRepo,
+        IAnimalRepository animalRepo)
     {
+        _client = client;
         _courseRepo = courseRepo;
         _courseAnimalRepo = courseAnimalRepo;
         _animalRepo = animalRepo;

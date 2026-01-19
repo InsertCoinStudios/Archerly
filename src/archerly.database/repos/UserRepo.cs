@@ -4,11 +4,11 @@ using archerly.database.repos.interfaces;
 
 namespace archerly.database.repos;
 
-public class UserRepo : IUserRepository
+public class UserRepository : IUserRepository
 {
     private readonly Client _supabaseClient;
 
-    public UserRepo(Client supabaseClient)
+    public UserRepository(Client supabaseClient)
     {
         _supabaseClient = supabaseClient;
     }
