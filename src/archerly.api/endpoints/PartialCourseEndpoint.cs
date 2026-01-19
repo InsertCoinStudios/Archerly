@@ -15,17 +15,17 @@ public static class PartialCoursesEndpoint
         // Contract: List<Courses> or ApiError
         app.MapGet("/courses/partial", GetCoursesPartial);
         // Contract: Course or ApiError
-        app.MapGet("/courses/{id}/partial", GetCourseByIdPartial);
+        app.MapGet("/courses/{id:guid}/partial", GetCourseByIdPartial);
         // Contract: Empty or ApiError
         app.MapPost("/courses/partial", PostCoursePartial);
         // Contract: Empty or ApiError
-        app.MapDelete("/courses/{id}?partial", DeleteCourseByIdPartial);
+        app.MapDelete("/courses/{id:guid}/partial", DeleteCourseByIdPartial);
         // Contract: Empty or ApiError
-        app.MapPut("/courses/{id}/partial", PutCourseByIdPartial);
+        app.MapPut("/courses/{id:guid}/partial", PutCourseByIdPartial);
     }
 
 
-    private async static Task<IResult> GetCoursesPartial(Supabase.Client client, ClaimsPrincipal user, ICourseRepository repo)
+    private async static Task<IResult> GetCoursesPartial(ClaimsPrincipal user, ICourseRepository repo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(GetCoursesPartial), user, out Guid guid, out IResult? error))
         {
@@ -43,17 +43,15 @@ public static class PartialCoursesEndpoint
         }
     }
 
-    private async static Task<IResult> GetCourseByIdPartial(string id, Supabase.Client client, ClaimsPrincipal user, ICourseRepository repo)
+    private async static Task<IResult> GetCourseByIdPartial(Guid id, ClaimsPrincipal user, ICourseRepository repo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(GetCourseByIdPartial), user, out Guid guid, out IResult? error))
         {
             return error;
         }
-        var service = new CourseService(client);
         try
         {
-            var courseGuid = Guid.Parse(id);
-            var course = await repo.GetByIdAsync(courseGuid) ?? throw new NullReferenceException($"Function: {nameof(GetCourseByIdPartial)}");
+            var course = await repo.GetByIdAsync(id) ?? throw new NullReferenceException($"Function: {nameof(GetCourseByIdPartial)}");
             return Results.Ok(new PartialCourseResponse(course));
         }
         catch (Exception e)
@@ -81,7 +79,7 @@ public static class PartialCoursesEndpoint
         }
     }
 
-    private async static Task<IResult> DeleteCourseByIdPartial(string id, ClaimsPrincipal user, ICourseRepository repo)
+    private async static Task<IResult> DeleteCourseByIdPartial(Guid id, ClaimsPrincipal user, ICourseRepository repo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(DeleteCourseByIdPartial), user, out Guid guid, out IResult? error))
         {
@@ -89,8 +87,7 @@ public static class PartialCoursesEndpoint
         }
         try
         {
-            var courseGuid = Guid.Parse(id);
-            await repo.DeleteAsync(courseGuid);
+            await repo.DeleteAsync(id);
             return Results.Ok();
         }
         catch (Exception e)
@@ -100,7 +97,7 @@ public static class PartialCoursesEndpoint
         }
     }
 
-    private async static Task<IResult> PutCourseByIdPartial(string id, ClaimsPrincipal user, PartialCourseRequest request, ICourseRepository repo)
+    private async static Task<IResult> PutCourseByIdPartial(Guid id, ClaimsPrincipal user, PartialCourseRequest request, ICourseRepository repo)
     {
 
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(PutCourseByIdPartial), user, out Guid guid, out IResult? error))
@@ -109,7 +106,6 @@ public static class PartialCoursesEndpoint
         }
         try
         {
-            var courseGuid = Guid.Parse(id);
             await repo.UpdateAsync(request.Course);
             return Results.Ok();
         }

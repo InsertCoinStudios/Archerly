@@ -15,13 +15,13 @@ public static class CoursesEndpoint
         // Contract: List<Courses> or ApiError
         app.MapGet("/courses", GetCourses);
         // Contract: Course or ApiError
-        app.MapGet("/courses/{id}", GetCourseById);
+        app.MapGet("/courses/{id:guid}", GetCourseById);
         // Contract: Empty or ApiError
         app.MapPost("/courses", PostCourse);
         // Contract: Empty or ApiError
-        app.MapDelete("/courses/{id}", DeleteCourseById);
+        app.MapDelete("/courses/{id:guid}", DeleteCourseById);
         // Contract: Empty or ApiError
-        app.MapPut("/courses/{id}", PutCourseById);
+        app.MapPut("/courses/{id:guid}", PutCourseById);
     }
 
     // Consumer has to resolve the Animals  himself by suing the provided IDs
@@ -44,17 +44,15 @@ public static class CoursesEndpoint
     }
 
     // Consumer has to resolve the Animals  himself by suing the provided IDs
-    private async static Task<IResult> GetCourseById(string id, Supabase.Client client, ClaimsPrincipal user, IHydratedCourseRepository repo)
+    private async static Task<IResult> GetCourseById(Guid id, ClaimsPrincipal user, IHydratedCourseRepository repo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(GetCourseById), user, out Guid guid, out IResult? error))
         {
             return error;
         }
-        var service = new CourseService(client);
         try
         {
-            var courseGuid = Guid.Parse(id);
-            var course = await repo.GetByIdAsync(courseGuid) ?? throw new NullReferenceException($"Function: {nameof(GetCourseById)}");
+            var course = await repo.GetByIdAsync(id) ?? throw new NullReferenceException($"Function: {nameof(GetCourseById)}");
             return Results.Ok(new HydratedCourseResponse(course));
         }
         catch (Exception e)
@@ -83,7 +81,7 @@ public static class CoursesEndpoint
         }
     }
 
-    private async static Task<IResult> DeleteCourseById(string id, ClaimsPrincipal user, IHydratedCourseRepository repo)
+    private async static Task<IResult> DeleteCourseById(Guid id, ClaimsPrincipal user, IHydratedCourseRepository repo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(DeleteCourseById), user, out Guid guid, out IResult? error))
         {
@@ -91,8 +89,7 @@ public static class CoursesEndpoint
         }
         try
         {
-            var courseGuid = Guid.Parse(id);
-            await repo.DeleteAsync(courseGuid);
+            await repo.DeleteAsync(id);
             return Results.Ok();
         }
         catch (Exception e)
@@ -103,7 +100,7 @@ public static class CoursesEndpoint
     }
 
 
-    private async static Task<IResult> PutCourseById(string id, ClaimsPrincipal user, HydratedCourseRequest request, IHydratedCourseRepository repo)
+    private async static Task<IResult> PutCourseById(Guid id, ClaimsPrincipal user, HydratedCourseRequest request, IHydratedCourseRepository repo)
     {
 
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(PutCourseById), user, out Guid guid, out IResult? error))
@@ -112,7 +109,10 @@ public static class CoursesEndpoint
         }
         try
         {
-            var courseGuid = Guid.Parse(id);
+            if (!id.Equals(request.Course.Id))
+            {
+                throw new InvalidDataException("Path ID and Body ID have to match");
+            }
             await repo.UpdateAsync(request.Course);
             return Results.Ok();
         }

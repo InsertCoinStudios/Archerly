@@ -92,4 +92,13 @@ public class ShotRepository : IShotRepository
             .Where(s => s.Id == id)
             .Delete();
     }
+
+    public async Task<List<Shot>> GetHighScoreShotsForAsync(Guid userId, Guid huntId)
+    {
+        var response = await _supabaseClient
+            .From<Shot>()
+            .Where(s => s.UserId == userId && s.HuntId == huntId)
+            .Get();
+        return response.Models ?? new List<Shot>();
+    }
 }

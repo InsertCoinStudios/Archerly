@@ -14,13 +14,13 @@ public static class AnimalEndpoints
         // Contract: List<Animal> or ApiError
         app.MapGet("/animals", GetAnimals);
         // Contract: Animal or ApiError
-        app.MapGet("/animals/{id}", GetAnimalById);
+        app.MapGet("/animals/{id:guid}", GetAnimalById);
         // Contract: Empty or ApiError
         app.MapPost("/animals", PostAnimal);
         // Contract: Empty or ApiError
-        app.MapDelete("/animals/{id}", DeleteAnimalById);
+        app.MapDelete("/animals/{id:guid}", DeleteAnimalById);
         // Contract: Empty or ApiError
-        app.MapPut("/animals/{id}", PutAnimalById);
+        app.MapPut("/animals/{id:guid}", PutAnimalById);
     }
 
     private async static Task<IResult> GetAnimals(IAnimalRepository repo)
@@ -36,16 +36,11 @@ public static class AnimalEndpoints
             return Results.InternalServerError(e);
         }
     }
-    private async static Task<IResult> GetAnimalById(string id, IAnimalRepository repo)
+    private async static Task<IResult> GetAnimalById(Guid id, IAnimalRepository repo)
     {
         try
         {
-            if (!Guid.TryParse(id, out Guid guid))
-            {
-                Log.Warning($"Function: {nameof(GetAnimalById)} Failed parse of ID {id}");
-                return Results.InternalServerError();
-            }
-            var result = await repo.GetByIdAsync(guid);
+            var result = await repo.GetByIdAsync(id);
             return Results.Ok(result);
         }
         catch (Exception e)
@@ -74,7 +69,7 @@ public static class AnimalEndpoints
         }
     }
 
-    private async static Task<IResult> DeleteAnimalById(string id, ClaimsPrincipal user, IAnimalRepository repo)
+    private async static Task<IResult> DeleteAnimalById(Guid id, ClaimsPrincipal user, IAnimalRepository repo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(PostAnimal), user, out Guid guid, out IResult? error))
         {
@@ -82,11 +77,7 @@ public static class AnimalEndpoints
         }
         try
         {
-            if (!Guid.TryParse(id, out Guid identificator))
-            {
-                return Results.InternalServerError($"Failed id to Guid Parse");
-            }
-            await repo.DeleteAsync(identificator);
+            await repo.DeleteAsync(id);
             return Results.Ok();
         }
         catch (Exception e)
@@ -95,7 +86,7 @@ public static class AnimalEndpoints
             return Results.InternalServerError(e);
         }
     }
-    private async static Task<IResult> PutAnimalById(string id, ClaimsPrincipal user, PutAnimalRequest request, IAnimalRepository repo)
+    private async static Task<IResult> PutAnimalById(Guid id, ClaimsPrincipal user, PutAnimalRequest request, IAnimalRepository repo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(PostAnimal), user, out Guid guid, out IResult? error))
         {
@@ -103,11 +94,7 @@ public static class AnimalEndpoints
         }
         try
         {
-            if (!Guid.TryParse(id, out Guid identificator))
-            {
-                return Results.InternalServerError($"Failed id to Guid Parse");
-            }
-            var animal = Animal.NewAnimalWithId(identificator, request.Name, request.ImageUrl);
+            var animal = Animal.NewAnimalWithId(id, request.Name, request.ImageUrl);
             await repo.UpdateAsync(animal);
             return Results.Ok();
         }

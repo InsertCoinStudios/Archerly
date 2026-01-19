@@ -22,7 +22,7 @@ public class User : BaseModel
     [Column("nickname")]
     public string Nickname { get; set; } = string.Empty;
     [Column("highscore")]
-    public long? HighScore { get; set; }
+    public Guid? HighScore { get; set; }
 
     // Empty user for defaults
     public static User Empty() => new User

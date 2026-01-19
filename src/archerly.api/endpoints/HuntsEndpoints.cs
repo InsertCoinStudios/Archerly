@@ -2,7 +2,7 @@
 using System.Security.Claims;
 using archerly.api.helpers;
 using archerly.core.hunts;
-using archerly.database.repos;
+using archerly.database.repos.interfaces;
 using archerly.entities;
 using Serilog;
 
@@ -12,22 +12,22 @@ public static class HuntsEndPoint
 {
     public static void MapHuntEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/hunts/{id}", GetHuntById).RequireAuthorization();
+        app.MapGet("/hunts/{id:length(4)}", GetHuntById).RequireAuthorization();
         app.MapPost("/hunts", PostHunt).RequireAuthorization();
-        app.MapPost("/hunts/{id}/join", PostHuntJoinById).RequireAuthorization();
-        app.MapPost("/hunts/{id}/leave", PostHuntLeaveById).RequireAuthorization();
+        app.MapPost("/hunts/{id:length(4)}/join", PostHuntJoinById).RequireAuthorization();
+        app.MapPost("/hunts/{id:length(4)}/leave", PostHuntLeaveById).RequireAuthorization();
 
-        app.MapPost("/hunts/{id}/shotvariant", PostHuntScoreVariantById).RequireAuthorization();
-        app.MapPost("/hunts/{id}/course", PostHuntCourseById).RequireAuthorization();
-        app.MapPost("/hunts/{id}/activate", PostHuntActivateById).RequireAuthorization();
-        app.MapPost("/hunts/{huntId}/animals/{animalId}/shot/{shotCount}", PostHuntShotOnTargetByIds).RequireAuthorization();
-        app.MapGet("/hunts/{id}/stats", GetHuntStats).RequireAuthorization();
-        app.MapGet("/hunts/{id}/userstats", GetHuntUserStats).RequireAuthorization();
+        app.MapPost("/hunts/{id:length(4)}/shotvariant", PostHuntScoreVariantById).RequireAuthorization();
+        app.MapPost("/hunts/{id:length(4)}/course", PostHuntCourseById).RequireAuthorization();
+        app.MapPost("/hunts/{id:length(4)}/activate", PostHuntActivateById).RequireAuthorization();
+        app.MapPost("/hunts/{huntId:length(4)}/animals/{animalId:guid}/shot/{shotCount}", PostHuntShotOnTargetByIds).RequireAuthorization();
+        app.MapGet("/hunts/{id:length(4)}/stats", GetHuntStats).RequireAuthorization();
+        app.MapGet("/hunts/{id:length(4)}/userstats", GetHuntUserStats).RequireAuthorization();
     }
 
 
     // returns the data for the requested
-    private async static Task<IResult> GetHuntById(string id, ClaimsPrincipal user, Supabase.Client client, HuntManager manager)
+    private async static Task<IResult> GetHuntById(string id, ClaimsPrincipal user, HuntManager manager, IUserRepository repo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim("GetHunt", user, out Guid guid, out IResult? error))
         {
@@ -41,11 +41,10 @@ public static class HuntsEndPoint
             return Results.NotFound();
         }
         // resolve players and owner
-        var userRepo = new SupaBaseUserRepo(client);
         var resolvedPlayers = new List<User>();
         foreach (var innerUser in data.Players)
         {
-            var resolvedUser = await userRepo.GetByUserIdlAsync(innerUser);
+            var resolvedUser = await repo.GetByIdAsync(innerUser);
             if (resolvedUser is null)
             {
                 Log.Warning($"Illegal State could not resolve Logged in User {innerUser} Function: GetHuntById");
@@ -55,7 +54,7 @@ public static class HuntsEndPoint
             }
             resolvedPlayers.Add(resolvedUser);
         }
-        var resolvedOwner = await userRepo.GetByUserIdlAsync(data.Owner)
+        var resolvedOwner = await repo.GetByIdAsync(data.Owner)
         ?? throw new InvalidDataException("Owner has to be Resolveable");
         var response = new HuntDataResponse(resolvedOwner, resolvedPlayers, resolvedPlayers.Count, data.SessionId);
         return Results.Ok(response);
@@ -67,7 +66,7 @@ public static class HuntsEndPoint
     /// Returns a Session Id to reference the Hunt in the future
     /// </summary>
     /// <returns></returns>
-    private async static Task<IResult> PostHunt(ClaimsPrincipal user, Supabase.Client client, HuntManager manager)
+    private async static Task<IResult> PostHunt(ClaimsPrincipal user, Supabase.Client client, HuntManager manager, IUserRepository repo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(PostHunt), user, out Guid guid, out IResult? error))
         {
@@ -76,7 +75,7 @@ public static class HuntsEndPoint
         try
         {
             var huntId = manager.CreateNewPendingHunt(guid);
-            var data = await GetHuntById(huntId, user, client, manager);
+            var data = await GetHuntById(huntId, user, manager, repo);
             return Results.Ok(data);
         }
         catch (Exception e)
@@ -180,7 +179,7 @@ public static class HuntsEndPoint
         return Results.Ok();
     }
 
-    private async static Task<IResult> PostHuntShotOnTargetByIds(string huntId, string animalId, string shotCount, ClaimsPrincipal user, HuntManager manager, HuntRegisterShotRequest receivedData, Supabase.Client client)
+    private async static Task<IResult> PostHuntShotOnTargetByIds(string huntId, Guid animalId, string shotCount, ClaimsPrincipal user, HuntManager manager, HuntRegisterShotRequest receivedData, IShotRepository repo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(PostHuntShotOnTargetByIds), user, out Guid guid, out IResult? error))
         {
@@ -188,11 +187,9 @@ public static class HuntsEndPoint
         }
         try
         {
-            var animalGuid = Guid.Parse(animalId);
             var shotNumber = int.Parse(shotCount);
-            var shotEntity = manager.SaveShot(huntId, guid, animalGuid, receivedData.PointsScored, shotNumber);
-            var repo = new SupaBaseShotRepo(client);
-            await repo.Insert(shotEntity);
+            var shotEntity = manager.SaveShot(huntId, guid, animalId, receivedData.PointsScored, shotNumber);
+            await repo.AddAsync(shotEntity);
             return Results.Ok();
         }
         catch (Exception e)
