@@ -3,6 +3,7 @@
 ### =========================
 @baseUrl = http://localhost:5000
 @auth_token = __runtime_set__
+### __runtime_set__
 
 #######################################################################
 ###                  User Manegement ENDPOINTS                      ###
@@ -39,6 +40,7 @@ Content-Type: application/json
 ### =========================
 ### Login
 ### =========================
+### // Endpoint works
 POST {{baseUrl}}/login
 Content-Type: application/json
 
@@ -52,9 +54,6 @@ Content-Type: application/json
 ### =========================
 POST {{baseUrl}}/logout
 Authorization: Bearer {{auth_token}}
-> {%
-  client.global.clear("auth_token");
-%}
 
 ### =========================
 ### All Time Stats (protected)
