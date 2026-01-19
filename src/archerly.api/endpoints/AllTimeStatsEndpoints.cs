@@ -17,7 +17,7 @@ public static class AllTimeStatsEndpoint
         app.MapPost("/allTimeStats", GetAllTimeStats);
     }
 
-    private static async Task<IResult> GetAllTimeStats(ClaimsPrincipal user, IShotRepository repo)
+    private static async Task<IResult> GetAllTimeStats(ClaimsPrincipal user, IShotRepository repo, IUserRepository userRepo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(GetAllTimeStats), user, out Guid guid, out IResult? error))
         {
@@ -51,7 +51,21 @@ public static class AllTimeStatsEndpoint
                 counterKillShot++;
             }
         }
-        var response = new AllTimeStatResponse(counterKillShot, counterHit, counterMiss, shots);
+        var u = await userRepo.GetByIdAsync(guid);
+        long highScoreCounter = 0;
+        if (u is not null)
+        {
+            if (u.HighScore is not null)
+            {
+                Guid hunt = u.HighScore.Value;
+                var highScoreShots = await repo.GetAllByHuntAsync(hunt);
+                foreach (var shot in highScoreShots)
+                {
+                    highScoreCounter += shot.Score;
+                }
+            }
+        }
+        var response = new AllTimeStatResponse(counterKillShot, counterHit, counterMiss, highScoreCounter, shots);
 
         return Results.Ok(response);
     }
@@ -83,4 +97,4 @@ public static class AllTimeStatsEndpoint
     }
 }
 
-public record AllTimeStatResponse(int Kill, int Hit, int Miss, List<entities.Shot> Shots);
+public record AllTimeStatResponse(int Kill, int Hit, int Miss, long HighScore, List<entities.Shot> Shots);
