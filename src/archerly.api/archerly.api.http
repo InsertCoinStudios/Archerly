@@ -183,6 +183,59 @@ Content-Type: application/json
 Authorization: Bearer {{auth_token}}
 
 #######################################################################
+###                        PARTIAL COURSE ENDPOINTS                 ###
+#######################################################################
+
+### =========================
+### Get all partial courses
+### =========================
+GET {{baseUrl}}/courses/partial
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+### =========================
+### Get partial course by ID
+### =========================
+GET {{baseUrl}}/courses/{{course_id}}/partial
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+### =========================
+### Create a partial course
+### =========================
+POST {{baseUrl}}/courses/partial
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "course": {
+    "name": "Intermediate Archery",
+    "animalIds": {{create_course_animal_ids}}
+  }
+}
+
+### =========================
+### Delete partial course by ID
+### =========================
+DELETE {{baseUrl}}/courses/{{course_id}}?partial
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+### =========================
+### Update partial course by ID
+### =========================
+PUT {{baseUrl}}/courses/{{course_id}}/partial
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "course": {
+    "name": "Intermediate Archery - Updated",
+    "animalIds": {{update_course_animal_ids}}
+  }
+}
+
+#######################################################################
 ###                          HUNTS ENDPOINTS                        ###
 #######################################################################
 
