@@ -3,10 +3,11 @@ using archerly.core.hunts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using archerly.database.repos.interfaces;
-using archerly.database.repos;
+using archerly.database.jsondb.repositories;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Text;
+using archerly.database.jsondb;
 namespace archerly.api.extensions;
 
 public static class WebAppBuilderExtensions
@@ -44,7 +45,7 @@ public static class WebAppBuilderExtensions
     private static WebApplicationBuilder AddSupabaseClient(this WebApplicationBuilder builder)
     {
         // Environmental Variable = SUPABASE__URL 
-        var url = builder.Configuration["Supabase:Url"]
+        var url = builder.Configuration["supabase:url"]
             ?? throw new InvalidOperationException("Supabase:Url missing");
 
         // Environmental Variable = SUPABASE__AnonKey
@@ -105,9 +106,15 @@ public static class WebAppBuilderExtensions
     }
     public static WebApplicationBuilder AddRepoServices(this WebApplicationBuilder builder)
     {
+        var dbPath = Path.Combine(
+            AppContext.BaseDirectory,
+            "logs",
+            "database.json"
+        );
+        builder.Services.AddSingleton(new JsonDatabaseStore(dbPath));
         builder.Services.AddSingleton<IUserRepository>(sp =>
         {
-            var client = sp.GetRequiredService<Supabase.Client>();
+            var client = sp.GetRequiredService<JsonDatabaseStore>();
             return new UserRepository(client);
         }
         );
@@ -115,40 +122,36 @@ public static class WebAppBuilderExtensions
         // Animal repo
         builder.Services.AddSingleton<IAnimalRepository>(sp =>
         {
-            var client = sp.GetRequiredService<Supabase.Client>();
+            var client = sp.GetRequiredService<JsonDatabaseStore>();
             return new AnimalRepository(client);
         });
 
         // Course repo
         builder.Services.AddSingleton<ICourseRepository>(sp =>
         {
-            var client = sp.GetRequiredService<Supabase.Client>();
+            var client = sp.GetRequiredService<JsonDatabaseStore>();
             return new CourseRepository(client);
         });
 
         // CourseAnimal (cross-table) repo
         builder.Services.AddSingleton<ICourseAnimalRepository>(sp =>
         {
-            var client = sp.GetRequiredService<Supabase.Client>();
+            var client = sp.GetRequiredService<JsonDatabaseStore>();
             return new CourseAnimalRepository(client);
         });
 
         // Shot repo
         builder.Services.AddSingleton<IShotRepository>(sp =>
         {
-            var client = sp.GetRequiredService<Supabase.Client>();
+            var client = sp.GetRequiredService<JsonDatabaseStore>();
             return new ShotRepository(client);
         });
 
         // HydratedCourse repo (reuses existing repos)
         builder.Services.AddSingleton<IHydratedCourseRepository>(sp =>
         {
-            var client = sp.GetRequiredService<Supabase.Client>();
-            var courseRepo = sp.GetRequiredService<ICourseRepository>();
-            var courseAnimalRepo = sp.GetRequiredService<ICourseAnimalRepository>();
-            var animalRepo = sp.GetRequiredService<IAnimalRepository>();
-
-            return new HydratedCourseRepository(client, courseRepo, courseAnimalRepo, animalRepo);
+            var client = sp.GetRequiredService<JsonDatabaseStore>();
+            return new HydratedCourseRepository(client);
         });
         return builder;
     }
