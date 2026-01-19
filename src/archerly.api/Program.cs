@@ -12,6 +12,7 @@ public static class Program
         var builder = WebApplication.CreateBuilder(args);
         builder.AddSupabase();
         builder.AddHuntManagerService();
+        builder.AddRepoServices();
 
         builder.Services.AddAuthorization();
 
