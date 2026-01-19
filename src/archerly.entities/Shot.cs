@@ -7,7 +7,7 @@ namespace archerly.entities;
 public class Shot : BaseModel
 {
     [PrimaryKey("id")]
-    public Guid Id { get; init; }
+    public Guid Id { get; set; }
 
     [Column("userid")]
     public Guid UserId { get; set; }
