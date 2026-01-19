@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using archerly.api.helpers;
 using archerly.core;
 using archerly.database.repos;
+using Serilog;
 
 namespace archerly.api.endpoints;
 
@@ -18,22 +19,26 @@ public static class LoginEndpoint
         var session = await client.Auth.SignIn(request.Email, request.Password);
         if (session is null)
         {
+            Log.Error("Endpoint Login: Session is null Path");
             return Results.Unauthorized();
         }
         var jwt = session.AccessToken;
         if (jwt is null)
         {
+            Log.Error("Endpoint Login: JWT is null Path");
             return Results.Unauthorized();
         }
 
         if (!JwtHelpers.TryGetUserGuidFromRawToken("Login", jwt, out Guid user_id, out IResult? error))
         {
+            Log.Error($"Endpoint Login: Actuator: {nameof(JwtHelpers.TryGetUserGuidFromRawToken)}, {error.ToString()}");
             return error;
         }
 
         var user = await new SupaBaseUserRepo(client).GetByUserIdlAsync(user_id);
         if (user is null)
         {
+            Log.Error($"Endpoint Login: Retrieved User is null");
             return Results.Problem(new ApiError(
                 "retrieved_jwt_but_no_user_found",
                 "Supabase returned a JWT but there is no user for this saved")
