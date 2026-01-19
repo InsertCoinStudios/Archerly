@@ -2,7 +2,7 @@ using Supabase.Postgrest.Models;
 namespace archerly.database.repos.interfaces;
 
 public interface ICompositeRepository<TEntity, TKey1, TKey2>
-    where TEntity : BaseModel
+//    where TEntity : BaseModel
 {
     /// <summary>
     /// Get entity by composite primary key

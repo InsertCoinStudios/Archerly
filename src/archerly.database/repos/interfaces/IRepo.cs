@@ -1,7 +1,8 @@
 using Supabase.Postgrest.Models;
 namespace archerly.database.repos.interfaces;
 
-public interface IRepository<T> where T : BaseModel
+public interface IRepository<T>
+//where T : BaseModel
 {
     /// <summary>
     /// Get an entity by its primary key (Guid for UUIDs or long for bigint)
