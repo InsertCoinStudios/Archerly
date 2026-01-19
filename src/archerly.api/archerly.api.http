@@ -11,7 +11,7 @@
 ### =========================
 ### User Management Vars
 ### =========================
-@email = test@example.com
+@email = newuser@example.com
 @password = secret123
 @register_email = newuser@example.com
 @register_password = secret123
@@ -23,6 +23,7 @@
 ### =========================
 ### Register a new user
 ### =========================
+### // Endpoint has problems
 POST {{baseUrl}}/register
 Content-Type: application/json
 
@@ -33,13 +34,6 @@ Content-Type: application/json
   "firstName": "{{register_firstName}}",
   "lastName": "{{register_lastName}}"
 }
-> {%
-  if (response.status !== 200) {
-    console.error("Registration failed:", response.body);
-  } else {
-    console.log("Registration succeeded");
-  }
-%}
 
 
 ### =========================
@@ -52,12 +46,6 @@ Content-Type: application/json
   "email": "{{email}}",
   "password": "{{password}}"
 }
-> {%
-  if (response.status !== 200) {
-    throw new Error("Login failed");
-  }
-  client.global.set("auth_token", response.body.jwt);
-%}
 
 ### =========================
 ### Logout + clear auth token
@@ -76,13 +64,6 @@ Content-Type: application/json
 Authorization: Bearer {{auth_token}}
 
 {}
-> {%
-  if (response.status !== 200) {
-    console.error("Failed to fetch all-time stats:\n", response.body);
-  } else {
-    console.log("All-time stats response:\n", response.body);
-  }
-%}
 
 #######################################################################
 ###                          ANIMALS ENDPOINTS                      ###
@@ -100,9 +81,6 @@ Authorization: Bearer {{auth_token}}
 GET {{baseUrl}}/animals
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
-> {%
-  console.log("Get all animals response:\n", response.body);
-%}
 
 ### =========================
 ### Get animal by ID
@@ -110,9 +88,6 @@ Authorization: Bearer {{auth_token}}
 GET {{baseUrl}}/animals/{{animal_id}}
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
-> {%
-  console.log("Get animal by ID response:\n", response.body);
-%}
 
 ### =========================
 ### Create a new animal
@@ -125,9 +100,6 @@ Authorization: Bearer {{auth_token}}
   "name": "Lion",
   "imageUrl": "https://example.com/lion.png"
 }
-> {%
-  console.log("Post animal response:\n", response.body);
-%}
 
 ### =========================
 ### Update an existing animal
@@ -140,9 +112,6 @@ Authorization: Bearer {{auth_token}}
   "name": "Tiger",
   "imageUrl": "https://example.com/tiger.png"
 }
-> {%
-  console.log("Put animal response:\n", response.body);
-%}
 
 ### =========================
 ### Delete an animal
@@ -150,9 +119,6 @@ Authorization: Bearer {{auth_token}}
 DELETE {{baseUrl}}/animals/{{animal_id}}
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
-> {%
-  console.log("Delete animal response:\n", response.body);
-%}
 
 #######################################################################
 ###                          COURSES ENDPOINTS                      ###
@@ -174,9 +140,6 @@ Authorization: Bearer {{auth_token}}
 GET {{baseUrl}}/courses
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
-> {%
-  console.log("Get all courses response:\n", response.body);
-%}
 
 ### =========================
 ### Get course by ID
@@ -184,9 +147,6 @@ Authorization: Bearer {{auth_token}}
 GET {{baseUrl}}/courses/{{course_id}}
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
-> {%
-  console.log("Get course by ID response:\n", response.body);
-%}
 
 ### =========================
 ### Create a new course
@@ -201,9 +161,6 @@ Authorization: Bearer {{auth_token}}
     "animalIds": {{create_course_animal_ids}}
   }
 }
-> {%
-  console.log("Post course response:\n", response.body);
-%}
 
 ### =========================
 ### Update an existing course
@@ -218,9 +175,6 @@ Authorization: Bearer {{auth_token}}
     "animalIds": {{update_course_animal_ids}}
   }
 }
-> {%
-  console.log("Put course response:\n", response.body);
-%}
 
 ### =========================
 ### Delete a course
@@ -228,9 +182,6 @@ Authorization: Bearer {{auth_token}}
 DELETE {{baseUrl}}/courses/{{course_id}}
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
-> {%
-  console.log("Delete course response:\n", response.body);
-%}
 
 #######################################################################
 ###                          HUNTS ENDPOINTS                        ###
@@ -252,9 +203,6 @@ Authorization: Bearer {{auth_token}}
 POST {{baseUrl}}/hunts
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
-> {%
-  console.log("Post hunt response:\n", response.body);
-%}
 
 ### =========================
 ### Get hunt by ID
@@ -262,9 +210,6 @@ Authorization: Bearer {{auth_token}}
 GET {{baseUrl}}/hunts/{{hunt_id}}
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
-> {%
-  console.log("Get hunt by ID response:\n", response.body);
-%}
 
 ### =========================
 ### Join a hunt
@@ -272,9 +217,6 @@ Authorization: Bearer {{auth_token}}
 POST {{baseUrl}}/hunts/{{hunt_id}}/join
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
-> {%
-  console.log("Post hunt join response:\n", response.body);
-%}
 
 ### =========================
 ### Leave a hunt
@@ -282,9 +224,6 @@ Authorization: Bearer {{auth_token}}
 POST {{baseUrl}}/hunts/{{hunt_id}}/leave
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
-> {%
-  console.log("Post hunt leave response:\n", response.body);
-%}
 
 ### =========================
 ### Set hunt scoring variant
@@ -296,9 +235,6 @@ Authorization: Bearer {{auth_token}}
 {
   "variant": 1
 }
-> {%
-  console.log("Post hunt score variant response:\n", response.body);
-%}
 
 ### =========================
 ### Assign course to hunt
@@ -310,9 +246,6 @@ Authorization: Bearer {{auth_token}}
 {
   "courseId": "{{course_id_for_hunt}}"
 }
-> {%
-  console.log("Post hunt course response:\n", response.body);
-%}
 
 ### =========================
 ### Activate hunt
@@ -320,9 +253,6 @@ Authorization: Bearer {{auth_token}}
 POST {{baseUrl}}/hunts/{{hunt_id}}/activate
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
-> {%
-  console.log("Post hunt activate response:\n", response.body);
-%}
 
 ### =========================
 ### Register a shot for an animal
@@ -334,9 +264,6 @@ Authorization: Bearer {{auth_token}}
 {
   "pointsScored": {{points_scored}}
 }
-> {%
-  console.log("Post hunt shot response:\n", response.body);
-%}
 
 ### =========================
 ### Get hunt stats
@@ -344,9 +271,6 @@ Authorization: Bearer {{auth_token}}
 GET {{baseUrl}}/hunts/{{hunt_id}}/stats
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
-> {%
-  console.log("Get hunt stats response:\n", response.body);
-%}
 
 ### =========================
 ### Get hunt user stats
@@ -354,7 +278,3 @@ Authorization: Bearer {{auth_token}}
 GET {{baseUrl}}/hunts/{{hunt_id}}/userstats
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
-> {%
-  console.log("Get hunt user stats response:\n", response.body);
-%}
-
