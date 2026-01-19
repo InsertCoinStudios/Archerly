@@ -2,6 +2,8 @@ using archerly.api.endpoints;
 using archerly.core.hunts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using archerly.database.repos.interfaces;
+using archerly.database.repos;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Text;
@@ -101,5 +103,53 @@ public static class WebAppBuilderExtensions
         );
         return builder;
     }
+    public static WebApplicationBuilder AddRepoServices(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddSingleton<IUserRepository>(sp =>
+        {
+            var client = sp.GetRequiredService<Supabase.Client>();
+            return new UserRepository(client);
+        }
+        );
 
+        // Animal repo
+        builder.Services.AddSingleton<IAnimalRepository>(sp =>
+        {
+            var client = sp.GetRequiredService<Supabase.Client>();
+            return new AnimalRepository(client);
+        });
+
+        // Course repo
+        builder.Services.AddSingleton<ICourseRepository>(sp =>
+        {
+            var client = sp.GetRequiredService<Supabase.Client>();
+            return new CourseRepository(client);
+        });
+
+        // CourseAnimal (cross-table) repo
+        builder.Services.AddSingleton<ICourseAnimalRepository>(sp =>
+        {
+            var client = sp.GetRequiredService<Supabase.Client>();
+            return new CourseAnimalRepository(client);
+        });
+
+        // Shot repo
+        builder.Services.AddSingleton<IShotRepository>(sp =>
+        {
+            var client = sp.GetRequiredService<Supabase.Client>();
+            return new ShotRepository(client);
+        });
+
+        // HydratedCourse repo (reuses existing repos)
+        builder.Services.AddSingleton<IHydratedCourseRepository>(sp =>
+        {
+            var client = sp.GetRequiredService<Supabase.Client>();
+            var courseRepo = sp.GetRequiredService<ICourseRepository>();
+            var courseAnimalRepo = sp.GetRequiredService<ICourseAnimalRepository>();
+            var animalRepo = sp.GetRequiredService<IAnimalRepository>();
+
+            return new HydratedCourseRepository(client, courseRepo, courseAnimalRepo, animalRepo);
+        });
+        return builder;
+    }
 }
