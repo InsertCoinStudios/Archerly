@@ -13,6 +13,8 @@ public static class WebAppBuilderExtensions
     {
         // Activate Login
         self.MapLoginEndpoints();
+
+        self.MapLogoutEndpoints();
         // Activate Register Endpoint
         self.MapRegisterEndpoints();
         // Activate Hunt
