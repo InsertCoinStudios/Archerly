@@ -3,22 +3,23 @@ using Supabase.Postgrest.Models;
 
 namespace archerly.entities;
 
-[Table("courses")]
-public class Course : BaseModel
+//[Table("courses")]
+public class Course
+//: BaseModel
 {
-    [PrimaryKey("id")]
+    //    [PrimaryKey("id")]
     public Guid Id { get; set; }
 
-    [Column("name")]
+    //    [Column("name")]
     public string Name { get; set; } = string.Empty;
 
-    [Column("location")]
+    //    [Column("location")]
     public string Location { get; set; } = string.Empty;
 
-    [Column("difficulty")]
+    //    [Column("difficulty")]
     public string Difficulty { get; set; } = string.Empty;
 
-    [Column("info")]
+    //    [Column("info")]
     public string Info { get; set; } = string.Empty;
 
     public static Course From(string name, string location, string info, string difficulty)

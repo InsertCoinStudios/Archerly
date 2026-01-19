@@ -3,25 +3,26 @@ using Supabase.Postgrest.Models;
 
 namespace archerly.entities;
 
-[Table("user")]
-public class User : BaseModel
+//[Table("user")]
+public class User
+//: BaseModel
 {
     // Matches the 'id uuid' primary key in your table
-    [PrimaryKey("id")]
+    //    [PrimaryKey("id")]
     public Guid Id { get; set; }
 
-    [Column("isadmin")]
+    //    [Column("isadmin")]
     public bool IsAdmin { get; set; }
 
-    [Column("firstname")]
+    //    [Column("firstname")]
     public string FirstName { get; set; } = string.Empty;
 
-    [Column("lastname")]
+    //    [Column("lastname")]
     public string LastName { get; set; } = string.Empty;
 
-    [Column("nickname")]
+    //    [Column("nickname")]
     public string Nickname { get; set; } = string.Empty;
-    [Column("highscore")]
+    //    [Column("highscore")]
     public Guid? HighScore { get; set; }
 
     // Empty user for defaults

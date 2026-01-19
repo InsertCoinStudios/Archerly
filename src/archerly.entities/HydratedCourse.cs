@@ -1,7 +1,8 @@
 using Supabase.Postgrest.Models;
 namespace archerly.entities;
 
-public class HydratedCourse : BaseModel
+public class HydratedCourse
+//: BaseModel
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;

@@ -3,15 +3,16 @@ using Supabase.Postgrest.Models;
 
 namespace archerly.entities;
 
-[Table("coursexanimal")]
-public class CourseAnimal : BaseModel
+//[Table("coursexanimal")]
+public class CourseAnimal
+//: BaseModel
 {
-    [PrimaryKey("courseid")]
+    //   [PrimaryKey("courseid")]
     public Guid CourseId { get; set; }
 
-    [PrimaryKey("animalid")]
+    //    [PrimaryKey("animalid")]
     public Guid AnimalId { get; set; }
 
-    [Column("order")]
+    //    [Column("order")]
     public long Order { get; set; }
 }

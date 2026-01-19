@@ -3,27 +3,28 @@ using Supabase.Postgrest.Models;
 
 namespace archerly.entities;
 
-[Table("shot")]
-public class Shot : BaseModel
+//[Table("shot")]
+public class Shot
+//: BaseModel
 {
-    [PrimaryKey("id")]
+    //    [PrimaryKey("id")]
     public Guid Id { get; set; }
 
-    [Column("userid")]
+    //    [Column("userid")]
     public Guid UserId { get; set; }
 
-    [Column("animalid")]
+    //    [Column("animalid")]
     public Guid AnimalId { get; set; }
 
-    [Column("score")]
+    //    [Column("score")]
     public long Score { get; set; }
 
-    [Column("kind")]
+    //    [Column("kind")]
     public int Kind { get; set; }
 
-    [Column("shotnumber")]
+    //    [Column("shotnumber")]
     public long ShotNumber { get; set; }
 
-    [Column("huntid")]
+    //    [Column("huntid")]
     public Guid HuntId { get; set; }
 }
