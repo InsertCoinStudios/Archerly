@@ -14,7 +14,7 @@ public static class AllTimeStatsEndpoint
     public static void MapAllTimeStatEndpoints(this IEndpointRouteBuilder app)
     {
         // Contract DTO of AllTimeStats or APIError DTO
-        app.MapPost("/allTimeStats", GetAllTimeStats);
+        app.MapGet("/allTimeStats", GetAllTimeStats);
     }
 
     private static async Task<IResult> GetAllTimeStats(ClaimsPrincipal user, IShotRepository repo, IUserRepository userRepo)
