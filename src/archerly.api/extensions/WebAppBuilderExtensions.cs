@@ -30,6 +30,7 @@ public static class WebAppBuilderExtensions
         self.MapAnimalEndpoints();
         // Activate Image Endpoints
         self.MapImageEndpoints();
+        self.MapDatabaseDebugEndpoints();
 
         return self;
     }
@@ -151,7 +152,10 @@ public static class WebAppBuilderExtensions
         builder.Services.AddSingleton<IHydratedCourseRepository>(sp =>
         {
             var client = sp.GetRequiredService<JsonDatabaseStore>();
-            return new HydratedCourseRepository(client);
+            var course = sp.GetRequiredService<ICourseRepository>();
+            var coursexanimal = sp.GetRequiredService<ICourseAnimalRepository>();
+            var animal = sp.GetRequiredService<IAnimalRepository>();
+            return new HydratedCourseRepository(client, course, coursexanimal, animal);
         });
         return builder;
     }

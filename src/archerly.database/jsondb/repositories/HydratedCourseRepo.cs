@@ -7,6 +7,20 @@ public class HydratedCourseRepository
     : JsonRepositoryBase, IHydratedCourseRepository
 {
     public HydratedCourseRepository(JsonDatabaseStore store) : base(store) { }
+    private readonly ICourseRepository _courseRepo;
+    private readonly ICourseAnimalRepository _courseAnimalRepo;
+    private readonly IAnimalRepository _animalRepo;
+
+    public HydratedCourseRepository(
+        JsonDatabaseStore store,
+        ICourseRepository courseRepo,
+        ICourseAnimalRepository courseAnimalRepo,
+        IAnimalRepository animalRepo) : base(store)
+    {
+        _courseRepo = courseRepo;
+        _courseAnimalRepo = courseAnimalRepo;
+        _animalRepo = animalRepo;
+    }
 
     public Task<HydratedCourse?> GetByIdAsync(Guid id)
     {
@@ -34,17 +48,99 @@ public class HydratedCourseRepository
         return Task.FromResult(db.Courses.Select(c => Build(c, db)).ToList());
     }
 
-    public Task<HydratedCourse?> AddAsync(HydratedCourse _)
-        => throw new NotSupportedException();
+    public async Task<HydratedCourse?> AddAsync(HydratedCourse entity)
+    {
+        var db = Store.Load();
 
-    public Task<HydratedCourse?> UpdateAsync(HydratedCourse _)
-        => throw new NotSupportedException();
+        // Add course
+        var course = new Course
+        {
+            Id = entity.Id != Guid.Empty ? entity.Id : Guid.NewGuid(),
+            Name = entity.Name,
+            Location = entity.Location,
+            Difficulty = entity.Difficulty,
+            Info = entity.Info
+        };
+        db.Courses.Add(course);
 
-    public Task DeleteAsync(Guid _)
-        => throw new NotSupportedException();
+        // Add animals (if new) and course-animal links
+        for (int i = 0; i < entity.Animals.Count; i++)
+        {
+            var animal = entity.Animals[i];
 
-    public Task DeleteAsync(HydratedCourse _)
-        => throw new NotSupportedException();
+            if (!db.Animals.Any(a => a.Id == animal.Id))
+                db.Animals.Add(animal);
+
+            db.CourseAnimals.Add(new CourseAnimal
+            {
+                CourseId = course.Id,
+                AnimalId = animal.Id,
+                Order = i
+            });
+        }
+
+        Store.Save(db);
+
+        return Build(course, db);
+    }
+
+    public async Task<HydratedCourse?> UpdateAsync(HydratedCourse entity)
+    {
+        var db = Store.Load();
+
+        // Update course
+        var index = db.Courses.FindIndex(c => c.Id == entity.Id);
+        if (index < 0) return null;
+
+        db.Courses[index] = new Course
+        {
+            Id = entity.Id,
+            Name = entity.Name,
+            Location = entity.Location,
+            Difficulty = entity.Difficulty,
+            Info = entity.Info
+        };
+
+        // Delete existing course-animal links
+        db.CourseAnimals.RemoveAll(ca => ca.CourseId == entity.Id);
+
+        // Re-add animals in order
+        for (int i = 0; i < entity.Animals.Count; i++)
+        {
+            var animal = entity.Animals[i];
+
+            if (!db.Animals.Any(a => a.Id == animal.Id))
+                db.Animals.Add(animal);
+
+            db.CourseAnimals.Add(new CourseAnimal
+            {
+                CourseId = entity.Id,
+                AnimalId = animal.Id,
+                Order = i
+            });
+        }
+
+        Store.Save(db);
+
+        return Build(db.Courses[index], db);
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        var db = Store.Load();
+
+        // Remove course-animal links
+        db.CourseAnimals.RemoveAll(ca => ca.CourseId == id);
+
+        // Remove course
+        db.Courses.RemoveAll(c => c.Id == id);
+
+        Store.Save(db);
+    }
+
+    // Delete by entity
+    public Task DeleteAsync(HydratedCourse entity)
+        => DeleteAsync(entity.Id);
 
     private static HydratedCourse Build(Course course, JsonDatabase db)
     {

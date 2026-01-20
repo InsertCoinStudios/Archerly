@@ -123,6 +123,7 @@ public class HuntManager : IDisposable
     {
         try
         {
+            // TODO: In Testing this gave back an empty targetlist
             return _sessions.RegisterShot(sessionId, playerId, animalId, points, shotNumber);
         }
         catch (Exception e)
@@ -171,32 +172,22 @@ public class HuntManager : IDisposable
         {
             var list = session.Hunt.Players;
             players = list.ToList;
-            if (!players.Contains(requester))
-            {
-                Log.Information($"Requester {requester} tried retrieving Data of Session {sessionId} without being a member of the Session");
-                return null;
-            }
             owner = list.Owner;
             sessionCode = session.Hunt.SessionId;
-            return new SessionData(players, owner, sessionCode);
+            return new SessionData(players, owner, HuntSettingsDto.From(session.Hunt.Settings), sessionCode);
         }
         if (session.IsPending())
         {
             var list = session.Pending.Players;
             players = list.ToList;
-            if (!players.Contains(requester))
-            {
-                Log.Information($"Requester {requester} tried retrieving Data of Session {sessionId} without being a member of the Session");
-                return null;
-            }
             owner = list.Owner;
             sessionCode = session.Pending.SessionId;
-            return new SessionData(players, owner, sessionCode);
+            return new SessionData(players, owner, HuntSettingsDto.From(session.Pending.Settings), sessionCode);
         }
         return null;
     }
 
-    public record SessionData(IReadOnlyList<Guid> Players, Guid Owner, string SessionId);
+    public record SessionData(IReadOnlyList<Guid> Players, Guid Owner, HuntSettingsDto dto, string SessionId);
 
     public void Dispose()
     {

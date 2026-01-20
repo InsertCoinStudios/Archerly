@@ -13,6 +13,8 @@ public static class HuntsEndPoint
     public static void MapHuntEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet("/hunts/{id:length(4)}", GetHuntById).RequireAuthorization();
+        app.MapGet("/hunts/{id:length(4)}/stats", GetHuntStats).RequireAuthorization();
+        app.MapGet("/hunts/{id:length(4)}/userstats", GetHuntUserStats).RequireAuthorization();
         app.MapPost("/hunts", PostHunt).RequireAuthorization();
         app.MapPost("/hunts/{id:length(4)}/join", PostHuntJoinById).RequireAuthorization();
         app.MapPost("/hunts/{id:length(4)}/leave", PostHuntLeaveById).RequireAuthorization();
@@ -21,12 +23,11 @@ public static class HuntsEndPoint
         app.MapPost("/hunts/{id:length(4)}/course", PostHuntCourseById).RequireAuthorization();
         app.MapPost("/hunts/{id:length(4)}/activate", PostHuntActivateById).RequireAuthorization();
         app.MapPost("/hunts/{huntId:length(4)}/animals/{animalId:guid}/shot/{shotCount}", PostHuntShotOnTargetByIds).RequireAuthorization();
-        app.MapGet("/hunts/{id:length(4)}/stats", GetHuntStats).RequireAuthorization();
-        app.MapGet("/hunts/{id:length(4)}/userstats", GetHuntUserStats).RequireAuthorization();
     }
 
 
     // returns the data for the requested
+    // Does not show the data from the settings
     private async static Task<IResult> GetHuntById(string id, ClaimsPrincipal user, HuntManager manager, IUserRepository repo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim("GetHunt", user, out Guid guid, out IResult? error))
@@ -81,7 +82,7 @@ public static class HuntsEndPoint
         catch (Exception e)
         {
             Log.Warning(e, $"Function: PostHunt");
-            return Results.InternalServerError(e);
+            return Results.InternalServerError();
         }
     }
 
@@ -130,7 +131,7 @@ public static class HuntsEndPoint
         catch (Exception e)
         {
             Log.Warning(e, "PostHuntScoreVariantById");
-            return Results.InternalServerError(e);
+            return Results.InternalServerError();
         }
     }
 
@@ -153,7 +154,7 @@ public static class HuntsEndPoint
         catch (Exception e)
         {
             Log.Warning(e, "PostHuntScoreVariantById");
-            return Results.InternalServerError(e);
+            return Results.InternalServerError();
         }
     }
 
@@ -174,7 +175,7 @@ public static class HuntsEndPoint
         }
         catch (Exception e)
         {
-            return Results.InternalServerError(e);
+            return Results.InternalServerError();
         }
         return Results.Ok();
     }
@@ -195,7 +196,7 @@ public static class HuntsEndPoint
         catch (Exception e)
         {
             Log.Warning(e, $"Function: PostHuntShotOnTarget ID: {huntId} AnimalId: {animalId}");
-            return Results.InternalServerError(e);
+            return Results.InternalServerError();
         }
     }
 
@@ -213,7 +214,7 @@ public static class HuntsEndPoint
         catch (Exception e)
         {
             Log.Warning(e, $"Function: {nameof(GetHuntStats)} ID: {id}");
-            return Results.InternalServerError(e);
+            return Results.InternalServerError();
         }
 
     }
@@ -232,7 +233,7 @@ public static class HuntsEndPoint
         catch (Exception e)
         {
             Log.Warning(e, $"Function: {nameof(GetHuntUserStats)} ID: {id}");
-            return Results.InternalServerError(e);
+            return Results.InternalServerError();
         }
 
     }

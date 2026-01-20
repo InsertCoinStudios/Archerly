@@ -33,7 +33,7 @@ public static class AnimalEndpoints
         catch (Exception e)
         {
             Log.Warning(e, $"Function: {nameof(GetAnimals)}");
-            return Results.InternalServerError(e);
+            return Results.InternalServerError();
         }
     }
     private async static Task<IResult> GetAnimalById(Guid id, IAnimalRepository repo)
@@ -46,7 +46,7 @@ public static class AnimalEndpoints
         catch (Exception e)
         {
             Log.Warning(e, $"Function: {nameof(GetAnimals)}");
-            return Results.InternalServerError(e);
+            return Results.InternalServerError();
         }
     }
 
@@ -59,13 +59,17 @@ public static class AnimalEndpoints
         try
         {
             var animal = Animal.NewAnimal(request.Name, request.ImageUrl);
-            await repo.AddAsync(animal);
+            var a = await repo.AddAsync(animal);
+            if (a is not null)
+            {
+                return Results.Ok(a.Id);
+            }
             return Results.Ok();
         }
         catch (Exception e)
         {
             Log.Warning(e, $"Function: {nameof(PostAnimal)}");
-            return Results.InternalServerError(e);
+            return Results.InternalServerError();
         }
     }
 
@@ -83,7 +87,7 @@ public static class AnimalEndpoints
         catch (Exception e)
         {
             Log.Warning(e, $"Function: {nameof(DeleteAnimalById)}");
-            return Results.InternalServerError(e);
+            return Results.InternalServerError();
         }
     }
     private async static Task<IResult> PutAnimalById(Guid id, ClaimsPrincipal user, PutAnimalRequest request, IAnimalRepository repo)
@@ -101,7 +105,7 @@ public static class AnimalEndpoints
         catch (Exception e)
         {
             Log.Warning(e, $"Function: {nameof(PutAnimalById)}");
-            return Results.InternalServerError(e);
+            return Results.InternalServerError();
         }
     }
 }

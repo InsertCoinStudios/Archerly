@@ -172,11 +172,13 @@ public class SessionManager : IDisposable
     /// </exception>
     public void SetCourse(string sessionId, Guid courseId)
     {
+        Log.Information("Starting setting Course for Session with ID {session} and Course {var}", sessionId, courseId);
         var pending = GetPendingHunt(sessionId);
         // retrieve course by GUId from db
         // TODO: Replace with call to the repository
         var course = new Course(courseId);
         pending.Settings.SelectedCourse = course;
+        Log.Information("Completed setting Course for Session with ID {session} and Course {var}", sessionId, courseId);
     }
 
     /// <summary>
@@ -201,10 +203,11 @@ public class SessionManager : IDisposable
             scoringVariant,
             nameof(scoringVariant)
         );
-
+        Log.Information("Starting setting Shotvariant for Session with ID {session} and Variant {var}", sessionId, scoringVariant);
         var pending = GetPendingHunt(sessionId);
 
         pending.Settings.ScoringVariant = (ShotType)scoringVariant;
+        Log.Information("Completed setting Shotvariant for Session with ID {session} and Variant {var}", sessionId, scoringVariant);
     }
 
     public bool PlayerJoined(string sessionId, Guid playerId)

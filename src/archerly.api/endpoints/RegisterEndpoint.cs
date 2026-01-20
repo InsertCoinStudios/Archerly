@@ -1,4 +1,5 @@
 
+using System.Text.Json;
 using archerly.core;
 using archerly.database.repos;
 using archerly.database.repos.interfaces;
@@ -16,55 +17,60 @@ public static class RegisterEndpoint
     }
     private async static Task<IResult> PostRegister(RegisterRequest request, Supabase.Client client, IUserRepository repo)
     {
-        try
-        {
-            var session = await client.Auth.SignUp(request.Email, request.Password);
-            if (session is null)
-            {
-                return Results.Problem(
-                    title: "Registration failed",
-                    detail: "No response from authentication provider",
-                    statusCode: StatusCodes.Status502BadGateway
-                );
-            }
-            if (session.User == null || string.IsNullOrEmpty(session.AccessToken) || session.User.Id is null)
-            {
-                return Results.Conflict(new RegisterResponse(
-                    Success: false,
-                    Error: new ApiError(
-                        "user_registration_failed_or_is_already_registered",
-                        "The registration failed since Supabase returned invalid data")
-                ));
-            }
-            var guid = Guid.Parse(session.User.Id);
-            // 🧱 Create domain user
-            var user = entities.User.NewUserWithId(
-                guid,
-                request.FirstName,
-                request.LastName,
-                request.Nickname,
-                isAdmin: false
-            );
-            try
-            {
-                await repo.AddAsync(user);
-            }
-            catch (Exception e)
-            {
-                Log.Warning(e, $"Function: {nameof(PostRegister)}");
-                return Results.InternalServerError(e);
-            }
-
-            return Results.Ok();
-        }
-        catch (Exception ex)
+        var session = await client.Auth.SignUp(request.Email, request.Password);
+        if (session is null)
         {
             return Results.Problem(
                 title: "Registration failed",
-                detail: ex.Message,
-                statusCode: StatusCodes.Status400BadRequest
+                detail: "No response from authentication provider",
+                statusCode: StatusCodes.Status501NotImplemented
             );
         }
+        if (session.User == null || string.IsNullOrEmpty(session.AccessToken) || session.User.Id is null)
+        {
+            return Results.Problem(
+                title: "user_registration_failed_or_is_already_registered",
+                detail: "No response from authentication provider",
+                statusCode: StatusCodes.Status502BadGateway
+            );
+        }
+        if (!Guid.TryParse(session.User.Id, out Guid guid))
+        {
+            return Results.Problem(
+                title: "User Guid Parse failed",
+                detail: $"Could not Parse Guid Primitive: {session.User.Id}",
+                statusCode: StatusCodes.Status503ServiceUnavailable
+            );
+        }
+        // 🧱 Create domain user
+        var user = entities.User.NewUserWithId(
+            guid,
+            request.FirstName,
+            request.LastName,
+            request.Nickname,
+            isAdmin: false
+        );
+        Log.Information("Guid: {guid} FirstName: {firstname} LastName: {lastname} Nickname: {nickname} IsAdmin {isadmin}", guid, request.FirstName, request.LastName, request.Nickname, false);
+        try
+        {
+            if (user.Id == Guid.Empty)
+            {
+                Log.Error("The User ID is {id}", user.Id);
+                return Results.Problem(
+                    title: "User Guid Is still Empty or Null",
+                    detail: $"Guid is Null: {user.Id}",
+                    statusCode: StatusCodes.Status507InsufficientStorage
+                );
+            }
+            await repo.AddAsync(user);
+        }
+        catch (Exception e)
+        {
+            Log.Warning(e, $"Function: {nameof(PostRegister)}");
+            return Results.InternalServerError();
+        }
+
+        return Results.Ok();
     }
 }
 

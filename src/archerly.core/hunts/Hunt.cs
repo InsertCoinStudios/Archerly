@@ -24,6 +24,7 @@ public class Hunt
     private readonly Course _course;
     private readonly ShotType _scoringVariant;
     public string SessionId { get; private set; }
+    public HuntSettings Settings { get; private set; }
     public PlayerList Players { get; init; }
 
     private readonly Lock _scoreLock = new();
@@ -35,5 +36,6 @@ public class Hunt
         _scoringVariant = settings.ScoringVariant;
         _course = settings.SelectedCourse;
         _scores = new ScoreBoard(_scoringVariant, _course.Targets);
+        Settings = settings;
     }
 }

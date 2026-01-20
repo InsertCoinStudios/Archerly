@@ -5,6 +5,7 @@ namespace archerly.core.hunts;
 
 public class PlayerList
 {
+    // TODO: Duplicate Players are allowed
     private readonly List<Guid> _players = new();
     private readonly Lock _playerLock = new();
 

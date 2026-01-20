@@ -39,7 +39,7 @@ public static class PartialCoursesEndpoint
         catch (Exception e)
         {
             Log.Warning(e, $"Function: {nameof(GetCoursesPartial)}");
-            return Results.InternalServerError(e);
+            return Results.InternalServerError();
         }
     }
 
@@ -57,7 +57,7 @@ public static class PartialCoursesEndpoint
         catch (Exception e)
         {
             Log.Warning(e, $"Function: {nameof(GetCourseByIdPartial)}");
-            return Results.InternalServerError(e);
+            return Results.InternalServerError();
         }
     }
 
@@ -75,7 +75,7 @@ public static class PartialCoursesEndpoint
         catch (Exception e)
         {
             Log.Warning(e, $"Function: {nameof(PostCoursePartial)}");
-            return Results.InternalServerError(e);
+            return Results.InternalServerError();
         }
     }
 
@@ -93,7 +93,7 @@ public static class PartialCoursesEndpoint
         catch (Exception e)
         {
             Log.Warning(e, $"Function: {nameof(DeleteCourseByIdPartial)} ID: {id}");
-            return Results.InternalServerError(e);
+            return Results.InternalServerError();
         }
     }
 
@@ -106,13 +106,14 @@ public static class PartialCoursesEndpoint
         }
         try
         {
+            request.Course.Id = id;
             await repo.UpdateAsync(request.Course);
             return Results.Ok();
         }
         catch (Exception e)
         {
             Log.Warning(e, $"Function: {nameof(PutCourseByIdPartial)} ID: {id}");
-            return Results.InternalServerError(e);
+            return Results.InternalServerError();
         }
     }
 }

@@ -39,7 +39,7 @@ public static class CoursesEndpoint
         catch (Exception e)
         {
             Log.Warning(e, $"Function: {nameof(GetCourses)}");
-            return Results.InternalServerError(e);
+            return Results.InternalServerError();
         }
     }
 
@@ -52,13 +52,17 @@ public static class CoursesEndpoint
         }
         try
         {
-            var course = await repo.GetByIdAsync(id) ?? throw new NullReferenceException($"Function: {nameof(GetCourseById)}");
+            var course = await repo.GetByIdAsync(id);
+            if (course is null)
+            {
+                return Results.NotFound();
+            }
             return Results.Ok(new HydratedCourseResponse(course));
         }
         catch (Exception e)
         {
             Log.Warning(e, $"Function: {nameof(GetCourseById)}");
-            return Results.InternalServerError(e);
+            return Results.InternalServerError();
         }
     }
 
@@ -71,13 +75,17 @@ public static class CoursesEndpoint
         }
         try
         {
-            await repo.AddAsync(request.Course);
-            return Results.Ok();
+            var result = await repo.AddAsync(request.Course);
+            if (result is null)
+            {
+                return Results.NotFound();
+            }
+            return Results.Ok(result.Id);
         }
         catch (Exception e)
         {
             Log.Warning(e, $"Function: {nameof(PostCourse)}");
-            return Results.InternalServerError(e);
+            return Results.InternalServerError();
         }
     }
 
@@ -95,7 +103,7 @@ public static class CoursesEndpoint
         catch (Exception e)
         {
             Log.Warning(e, $"Function: {nameof(DeleteCourseById)} ID: {id}");
-            return Results.InternalServerError(e);
+            return Results.InternalServerError();
         }
     }
 
@@ -109,17 +117,18 @@ public static class CoursesEndpoint
         }
         try
         {
-            if (!id.Equals(request.Course.Id))
+            request.Course.Id = id;
+            var result = await repo.UpdateAsync(request.Course);
+            if (result is null)
             {
-                throw new InvalidDataException("Path ID and Body ID have to match");
+                return Results.NotFound();
             }
-            await repo.UpdateAsync(request.Course);
-            return Results.Ok();
+            return Results.Ok(result.Id);
         }
         catch (Exception e)
         {
             Log.Warning(e, $"Function: {nameof(PutCourseById)} ID: {id}");
-            return Results.InternalServerError(e);
+            return Results.InternalServerError();
         }
     }
 
