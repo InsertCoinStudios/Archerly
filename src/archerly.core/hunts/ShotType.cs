@@ -1,7 +1,7 @@
 namespace archerly.core.hunts;
 
-public enum ShotType : byte
+public enum ShotType : int
 {
-    TwoShot = 0,
-    ThreeShot = 1
+    TwoShot = 2,
+    ThreeShot = 3
 }

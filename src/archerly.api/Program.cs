@@ -3,10 +3,6 @@ namespace archerly.api;
 using Serilog;
 using Serilog.Sinks.Loki;
 using archerly.api.extensions;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using System.Security.Claims;
 using archerly.metrics;
 
 public static class Program
@@ -14,26 +10,9 @@ public static class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        builder.Services
-        .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
-        {
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = false,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-
-                ValidIssuer = "https://YOUR_PROJECT_ID.supabase.co/auth/v1",
-                IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Supabase:JwtSecret"]!)
-            ),
-
-                // 👇 important: map `sub` correctly
-                NameClaimType = ClaimTypes.NameIdentifier
-            };
-        });
+        builder.AddSupabase();
+        builder.AddHuntManagerService();
+        builder.AddRepoServices();
 
         builder.Services.AddAuthorization();
 
@@ -41,16 +20,23 @@ public static class Program
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
 
-        //Setup Loki config either with user credentials or without
+        //Setup Loki config either with user credntials or without
         // Address to local or remote Loki server
-        var credentials = new BasicAuthCredentials("http://localhost:3100", "admin", "admin");
-        //var credentials = new NoAuthCredentials("http://localhost:3100"); 
+        //var credentials = new BasicAuthCredentials("http://loki:3100", "admin", "admin");
+        //var credentials = new NoAuthCredentials("http://loki:3100");
 
         Log.Logger = new LoggerConfiguration()
                     .MinimumLevel.Information()
                     .Enrich.FromLogContext()
-                    .WriteTo.LokiHttp(credentials)
+                    //.WriteTo.LokiHttp(credentials)
+                    .WriteTo.File(
+                        path: "/app/logs/archerly.log",        // path inside container
+                        rollingInterval: RollingInterval.Day,  // one file per day
+                        retainedFileCountLimit: 7,             // keep last 7 days
+                        outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"
+                    )
                     .CreateLogger();
+        Log.Information("Logger Configured");
 
         var app = builder.Build();
 

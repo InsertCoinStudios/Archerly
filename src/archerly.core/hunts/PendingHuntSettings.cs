@@ -5,7 +5,7 @@ namespace archerly.core.hunts;
 public class PendingHuntSettings
 {
     private ShotType? _scoringVariant;
-    private Course? _selectedCourse;
+    private entities.HydratedCourse? _selectedCourse;
 
     private readonly Lock _accessLock = new();
 
@@ -27,7 +27,7 @@ public class PendingHuntSettings
         }
     }
 
-    public Course? SelectedCourse
+    public entities.HydratedCourse? SelectedCourse
     {
         get
         {

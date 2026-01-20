@@ -1,4 +1,9 @@
 using System.Security.Claims;
+using archerly.api.helpers;
+using archerly.database.repos;
+using archerly.database.repos.interfaces;
+using archerly.entities;
+using Serilog;
 
 namespace archerly.api.endpoints;
 
@@ -10,56 +15,125 @@ public static class CoursesEndpoint
         // Contract: List<Courses> or ApiError
         app.MapGet("/courses", GetCourses);
         // Contract: Course or ApiError
-        app.MapGet("/courses/{id}", GetCourseById);
+        app.MapGet("/courses/{id:guid}", GetCourseById);
         // Contract: Empty or ApiError
         app.MapPost("/courses", PostCourse);
         // Contract: Empty or ApiError
-        app.MapDelete("/courses/{id}", DeleteCourseById);
+        app.MapDelete("/courses/{id:guid}", DeleteCourseById);
         // Contract: Empty or ApiError
-        app.MapPatch("/courses/{id}", PatchCourseById);
-        // Contract: Empty or ApiError
-        app.MapPut("/courses/{id}", PutCourseById);
+        app.MapPut("/courses/{id:guid}", PutCourseById);
     }
 
-    private static IResult GetCourses()
+    // Consumer has to resolve the Animals  himself by suing the provided IDs
+    private async static Task<IResult> GetCourses(Supabase.Client client, ClaimsPrincipal user, IHydratedCourseRepository repo)
     {
-        // TODO: Get Courses
-        // Retrieve all Courses from the DB
-        return Results.Ok();
+        if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(GetCourses), user, out Guid guid, out IResult? error))
+        {
+            return error;
+        }
+        try
+        {
+            var courses = await repo.GetAllAsync();
+            return Results.Ok(new AllHydratedCourseResponse(courses));
+        }
+        catch (Exception e)
+        {
+            Log.Warning(e, $"Function: {nameof(GetCourses)}");
+            return Results.InternalServerError();
+        }
     }
 
-    private static IResult GetCourseById(string? id)
+    // Consumer has to resolve the Animals  himself by suing the provided IDs
+    private async static Task<IResult> GetCourseById(Guid id, ClaimsPrincipal user, IHydratedCourseRepository repo)
     {
-        // TODO: Get Course
-        // Retrieve data for the Specific Course from the DB
-        return Results.Ok(id);
+        if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(GetCourseById), user, out Guid guid, out IResult? error))
+        {
+            return error;
+        }
+        try
+        {
+            var course = await repo.GetByIdAsync(id);
+            if (course is null)
+            {
+                return Results.NotFound();
+            }
+            return Results.Ok(new HydratedCourseResponse(course));
+        }
+        catch (Exception e)
+        {
+            Log.Warning(e, $"Function: {nameof(GetCourseById)}");
+            return Results.InternalServerError();
+        }
     }
 
-    private static IResult PostCourse(ClaimsPrincipal user)
+
+    private async static Task<IResult> PostCourse(ClaimsPrincipal user, HydratedCourseRequest request, IHydratedCourseRepository repo)
     {
-        // TODO: Post Course
-        // Create a New Course if the user is Admin
-        return Results.Ok();
+        if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(PostCourse), user, out Guid guid, out IResult? error))
+        {
+            return error;
+        }
+        try
+        {
+            var result = await repo.AddAsync(request.Course);
+            if (result is null)
+            {
+                return Results.NotFound();
+            }
+            return Results.Ok(result.Id);
+        }
+        catch (Exception e)
+        {
+            Log.Warning(e, $"Function: {nameof(PostCourse)}");
+            return Results.InternalServerError();
+        }
     }
 
-    private static IResult DeleteCourseById(string? id, ClaimsPrincipal user)
+    private async static Task<IResult> DeleteCourseById(Guid id, ClaimsPrincipal user, IHydratedCourseRepository repo)
     {
-        // TODO: Delete Course
-        // Delete Course if calling User is Admin
-        return Results.Ok(id);
+        if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(DeleteCourseById), user, out Guid guid, out IResult? error))
+        {
+            return error;
+        }
+        try
+        {
+            await repo.DeleteAsync(id);
+            return Results.Ok();
+        }
+        catch (Exception e)
+        {
+            Log.Warning(e, $"Function: {nameof(DeleteCourseById)} ID: {id}");
+            return Results.InternalServerError();
+        }
     }
 
-    private static IResult PatchCourseById(string? id, ClaimsPrincipal user)
+
+    private async static Task<IResult> PutCourseById(Guid id, ClaimsPrincipal user, HydratedCourseRequest request, IHydratedCourseRepository repo)
     {
-        // TODO: Patch Course
-        // Partially Update Course if User is Admin
-        return Results.Ok(id);
+
+        if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(PutCourseById), user, out Guid guid, out IResult? error))
+        {
+            return error;
+        }
+        try
+        {
+            request.Course.Id = id;
+            var result = await repo.UpdateAsync(request.Course);
+            if (result is null)
+            {
+                return Results.NotFound();
+            }
+            return Results.Ok(result.Id);
+        }
+        catch (Exception e)
+        {
+            Log.Warning(e, $"Function: {nameof(PutCourseById)} ID: {id}");
+            return Results.InternalServerError();
+        }
     }
 
-    private static IResult PutCourseById(string? id, ClaimsPrincipal user)
-    {
-        // TODO: Put Course
-        // Update Course if user is admin
-        return Results.Ok(id);
-    }
 }
+
+public record HydratedCourseRequest(HydratedCourse Course);
+public record HydratedCourseResponse(HydratedCourse Course);
+public record AllHydratedCourseResponse(List<HydratedCourse> Courses);

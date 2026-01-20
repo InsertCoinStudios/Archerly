@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using archerly.core.extensions;
 using archerly.metrics;
+using Microsoft.AspNetCore.Http;
 using Serilog;
 namespace archerly.core.hunts;
 
@@ -146,9 +147,17 @@ public class SessionManager : IDisposable
     /// </exception>
     public void ActivateSession(string sessionId)
     {
-        var pending = GetPendingHunt(sessionId);
-        pending.Activate();
-        Log.Information("Activated PendingHunt with sessionID {sessionId}", sessionId);
+        try
+        {
+            var pending = GetPendingHunt(sessionId);
+            pending.Activate();
+            Log.Information("Activated PendingHunt with sessionID {sessionId}", sessionId);
+        }
+        catch (Exception e)
+        {
+            Log.Warning(e, $"Function: ActivateSession ID:{sessionId}");
+            throw;
+        }
     }
 
     /// <summary>
@@ -162,13 +171,13 @@ public class SessionManager : IDisposable
     /// <exception cref="SessionDeletedException">
     /// Thrown when the pending hunt has been soft-deleted and can no longer be modified.
     /// </exception>
-    public void SetCourse(string sessionId, Guid courseId)
+    public void SetCourse(string sessionId, entities.HydratedCourse course)
     {
+        Log.Information("Starting setting Course for Session with ID {session} and Course {var}", sessionId, course);
         var pending = GetPendingHunt(sessionId);
         // retrieve course by GUId from db
-        // TODO: Replace with call to the repository
-        var course = new Course(courseId);
         pending.Settings.SelectedCourse = course;
+        Log.Information("Completed setting Course for Session with ID {session} and Course {var}", sessionId, course);
     }
 
     /// <summary>
@@ -193,50 +202,151 @@ public class SessionManager : IDisposable
             scoringVariant,
             nameof(scoringVariant)
         );
-
+        Log.Information("Starting setting Shotvariant for Session with ID {session} and Variant {var}", sessionId, scoringVariant);
         var pending = GetPendingHunt(sessionId);
 
         pending.Settings.ScoringVariant = (ShotType)scoringVariant;
+        Log.Information("Completed setting Shotvariant for Session with ID {session} and Variant {var}", sessionId, scoringVariant);
     }
 
-    public void PlayerJoined(string sessionId, Guid playerId)
+    public bool PlayerJoined(string sessionId, Guid playerId)
     {
         var session = GetSession(sessionId);
-        PlayerList.HandleGuid action = (id) => { };
         if (session.IsHunt())
         {
-            action = session.Hunt.Players.Add;
+            session.Hunt.Players.Add(playerId);
+            return true;
         }
         if (session.IsPending())
         {
-            action = session.Pending.Players.Add;
+            session.Pending.Players.Add(playerId);
+            return true;
         }
-        action(playerId);
+        return false;
     }
 
-    public void PlayerLeft(string sessionId, Guid playerId)
+    public bool PlayerLeft(string sessionId, Guid playerId)
     {
         var session = GetSession(sessionId);
-        PlayerList.HandleGuid action = (id) => { };
         if (session.IsHunt())
         {
-            action = session.Hunt.Players.Remove;
+            session.Hunt.Players.Remove(playerId);
+            return true;
         }
         if (session.IsPending())
         {
-            action = session.Pending.Players.Remove;
+            session.Pending.Players.Remove(playerId);
+            return true;
         }
-        action(playerId);
+        return false;
     }
 
-    public void RegisterShot(string sessionId, Guid playerId, Guid animalId, long points)
+    public entities.Shot RegisterShot(string sessionId, Guid playerId, Guid animalId, int points, int shotNumber)
     {
         var hunt = GetHunt(sessionId);
-        hunt.Scores.RegisterShot(playerId, animalId, points);
+        return hunt.Scores.RegisterShot(playerId, animalId, points, shotNumber, hunt.UUID);
+    }
+
+    public AllStats GetStats(string sessionId)
+    {
+        var hunt = GetHunt(sessionId);
+        var ranks = hunt.Scores.GetRanking();
+        if (ranks.Count == 0)
+        {
+            Log.Information("Ranks is empty");
+        }
+        return new AllStats(ranks);
+    }
+
+    public UserStats GetUserStats(string sessionId, Guid player)
+    {
+        var hunt = GetHunt(sessionId);
+        var ranks = hunt.Scores.GetRanking();
+        var shots = hunt.Scores.GetShotsForPlayer(player);
+        if (shots.Count == 0)
+        {
+            Log.Information("Shots for Player {playerid} is empty", player);
+        }
+
+        var counterKillShot = 0;
+        var counterHit = 0;
+        var counterMiss = 0;
+        foreach (var shot in shots)
+        {
+            if (shot.Score == 0)
+            {
+                counterMiss++;
+            }
+            if (shot.Score > 0)
+            {
+                counterHit++;
+            }
+            if (IsKillShot(shot))
+            {
+                counterKillShot++;
+            }
+        }
+        int? playerRank = ranks?.FirstOrDefault(kvp => kvp.Key == player).Value;
+        int rank = -1;
+        if (playerRank is not null)
+        {
+            rank = playerRank.Value;
+        }
+        return new UserStats(player, counterKillShot, counterHit, counterMiss, rank);
+    }
+
+    private static bool IsKillShot(entities.Shot shot)
+    {
+        if (shot.Score == 0)
+        {
+            return false;
+        }
+
+        // Zweipfeil 20 Score immer Kill
+        // Dreipfeil Erster Pfeil 20 Kill
+        // Dreipfeil Zweiter 16 Kill
+        // Dreipfeil Dritter 10 Kill
+        return shot switch
+        {
+            // Zweipfeil: always kill on 20
+            { Kind: 2, Score: 20 } => true,
+
+            // Dreipfeil rules
+            { Kind: 3, ShotNumber: 1, Score: 20 } => true,
+            { Kind: 3, ShotNumber: 2, Score: 16 } => true,
+            { Kind: 3, ShotNumber: 3, Score: 10 } => true,
+
+            // everything else
+            _ => false
+        };
+    }
+
+    public void RemovePlayerFromSessions(Guid playerId)
+    {
+        foreach (var hunt in _hunts)
+        {
+            var val = hunt.Value;
+            var session = val.Value;
+            if (session is null)
+            {
+                continue;
+            }
+            session.Players.Remove(playerId);
+        }
+        foreach (var hunt in _pendingHunts)
+        {
+            var val = hunt.Value;
+            var session = val.Value;
+            if (session is null)
+            {
+                continue;
+            }
+            session.Players.Remove(playerId);
+        }
     }
 
 
-    private SessionReference GetSession(string sessionId)
+    public SessionReference GetSession(string sessionId)
     {
         lock (_lock)
         {
@@ -414,7 +524,7 @@ public class SessionManager : IDisposable
         }
     }
 
-    internal class SessionReference
+    public class SessionReference
     {
         private readonly Hunt? _hunt;
         private readonly PendingHunt? _pending;
@@ -503,6 +613,9 @@ public class SessionManager : IDisposable
     }
 
 }
+
+public record AllStats(List<KeyValuePair<Guid, int>> Ranking);
+public record UserStats(Guid User, int Kill, int Hit, int Miss, int Rank);
 
 public sealed class SessionNotFoundException : Exception, IApiErrorConvertible, IDetailProvider
 {

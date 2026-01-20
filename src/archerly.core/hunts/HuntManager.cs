@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Http;
 using Serilog;
+using System.Linq;
 
 namespace archerly.core.hunts;
 
@@ -19,7 +21,7 @@ public class HuntManager : IDisposable
         }
     }
 
-    public void CreateNewPendingHunt(Guid ownerId)
+    public string CreateNewPendingHunt(Guid ownerId)
     {
         if (_sessions.Count > _maxSessions)
         {
@@ -27,20 +29,30 @@ public class HuntManager : IDisposable
                 $"Cannot create a new pending hunt: maximum number of sessions ({_maxSessions}) reached."
             );
             Log.Warning(ex, $"Location: CreateNewPendingHunt Creating PendingHunt for User with Guid ({ownerId})");
+            throw ex;
         }
         var transitionAction = _sessions.TransitionFromPending;
-        var transferFunc = TransferStrategies.TransferToTop;
+        var transferFunc = TransferStrategies.DissolveOnOwnerLeave;
         PendingHunt pending = new(ownerId, transitionAction, transferFunc);
 
         var dissolveFunc = () => { _sessions.Remove(pending.SessionId); };
         pending.Players.RequestDissolution = dissolveFunc;
         _sessions.AddPendingHunt(pending);
+        return pending.SessionId;
     }
 
-    public void SetCourseForPendingHunt(string sessionId, Guid courseId)
+    public void SetCourseForPendingHunt(string sessionId, entities.HydratedCourse course)
     {
         // TODO: I am expecting potential exceptions from the database layer when retrieving the Course
-        _sessions.SetCourse(sessionId, courseId);
+        try
+        {
+            _sessions.SetCourse(sessionId, course);
+        }
+        catch (Exception e)
+        {
+            Log.Warning(e, "Function: SetCourseForPendingHunt");
+            throw;
+        }
     }
 
     public void SetScoringVariantForPendingHunt(string sessionId, int scoringVariant)
@@ -61,30 +73,121 @@ public class HuntManager : IDisposable
         }
     }
 
+    public bool IsOwnerOf(string sessionId, Guid user)
+    {
+        var session = _sessions.GetSession(sessionId);
+        if (session.IsHunt())
+        {
+            return session.Hunt.Players.Owner.Equals(user);
+        }
+        if (session.IsPending())
+        {
+            return session.Pending.Players.Owner.Equals(user);
+        }
+        return false;
+    }
+
+    public void RemoveUserFromSessions(Guid userId)
+    {
+        _sessions.RemovePlayerFromSessions(userId);
+    }
+
     public void ActivatePendingHunt(string sessionId)
     {
-        _sessions.ActivateSession(sessionId);
+        try
+        {
+            _sessions.ActivateSession(sessionId);
+        }
+        catch (Exception e)
+        {
+            Log.Warning(e, $"Function: ActivatePendingHunt ID: {sessionId}");
+        }
     }
 
     public void RemoveSession(string sessionId)
     {
         _sessions.Remove(sessionId);
     }
-    public void PlayerJoined(string sessionId, Guid playerId)
+    public bool PlayerJoined(string sessionId, Guid playerId)
     {
-        _sessions.PlayerJoined(sessionId, playerId);
+        return _sessions.PlayerJoined(sessionId, playerId);
     }
 
-    public void PlayerLeft(string sessionId, Guid playerId)
+    public bool PlayerLeft(string sessionId, Guid playerId)
     {
-        _sessions.PlayerLeft(sessionId, playerId);
+        return _sessions.PlayerLeft(sessionId, playerId);
     }
 
     // TODO: Accept Shot Made Call to the Hunt
-    public void SaveShot(string sessionId, Guid playerId, Guid animalId, long points)
+    public entities.Shot SaveShot(string sessionId, Guid playerId, Guid animalId, int points, int shotNumber)
     {
-        _sessions.RegisterShot(sessionId, playerId, animalId, points);
+        try
+        {
+            // TODO: In Testing this gave back an empty targetlist
+            return _sessions.RegisterShot(sessionId, playerId, animalId, points, shotNumber);
+        }
+        catch (Exception e)
+        {
+            Log.Warning(e, $"Function: Saveshot ID: {sessionId} Guid: {playerId} AnimalId:{animalId}");
+            throw;
+        }
     }
+
+    public AllStats GetStatsFor(string sessionId)
+    {
+        try
+        {
+            var stats = _sessions.GetStats(sessionId);
+            return stats;
+        }
+        catch (Exception e)
+        {
+            Log.Warning(e, $"{nameof(GetStatsFor)} ID: {sessionId}");
+            throw;
+        }
+    }
+
+    public UserStats GetUserStatsFor(string sessionId, Guid user)
+    {
+        try
+        {
+            var stats = _sessions.GetUserStats(sessionId, user);
+            return stats;
+        }
+        catch (Exception e)
+        {
+            Log.Warning(e, $"{nameof(GetStatsFor)} ID: {sessionId}");
+            throw;
+        }
+    }
+
+    public SessionData? GetDataFor(string sessionId, Guid requester)
+    {
+        IReadOnlyList<Guid> players;
+        Guid owner = Guid.Empty;
+        string sessionCode;
+        var session = _sessions.GetSession(sessionId);
+
+        if (session.IsHunt())
+        {
+            var list = session.Hunt.Players;
+            players = list.ToList;
+            owner = list.Owner;
+            sessionCode = session.Hunt.SessionId;
+            return new SessionData(players, owner, HuntSettingsDto.From(session.Hunt.Settings), sessionCode);
+        }
+        if (session.IsPending())
+        {
+            var list = session.Pending.Players;
+            players = list.ToList;
+            owner = list.Owner;
+            sessionCode = session.Pending.SessionId;
+            return new SessionData(players, owner, HuntSettingsDto.From(session.Pending.Settings), sessionCode);
+        }
+        return null;
+    }
+
+    public record SessionData(IReadOnlyList<Guid> Players, Guid Owner, HuntSettingsDto dto, string SessionId);
 
     public void Dispose()
     {

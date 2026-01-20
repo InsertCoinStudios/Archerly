@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace archerly.core;
@@ -18,6 +19,13 @@ public class ApiError
         Details = new();
     }
 
+    public ApiError(Exception exception)
+    {
+        Code = exception.GetType().ToString();
+        Message = exception.Message;
+        Details = new();
+    }
+
     public void MergeDetails(IDetailProvider provider)
     {
         if (provider == null || provider.Details == null)
@@ -33,5 +41,9 @@ public class ApiError
                 Details[kvp.Key] = kvp.Value;
             }
         }
+    }
+    public override string ToString()
+    {
+        return JsonSerializer.Serialize(this);
     }
 }

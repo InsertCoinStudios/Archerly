@@ -1,6 +1,300 @@
-@src_HostAddress = http://localhost:5122
+### =========================
+### Local variables (file-only)
+### =========================
+@baseUrl = http://localhost:5000
+### Alice
+@auth_token = __runtime_set__
+### Till:
+###@auth_token = __runtime_set__
+### __runtime_set__
 
-GET {{src_HostAddress}}/weatherforecast/
+#######################################################################
+###                  User Manegement ENDPOINTS                      ###
+#######################################################################
+
+### =========================
+### User Management Vars
+### =========================
+@email = newuser1@example.com
+@password = secret1234
+@register_email = newuser1@example.com
+@register_password = secret1234
+@register_nickname = mew
+@register_firstName = Till
+@register_lastName = Smith
+
+### Get full JSON database
+GET {{baseUrl}}/debug/db
 Accept: application/json
 
-###
+### =========================
+### Register a new user
+### =========================
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "{{register_email}}",
+  "password": "{{register_password}}",
+  "nickname": "{{register_nickname}}",
+  "firstName": "{{register_firstName}}",
+  "lastName": "{{register_lastName}}"
+}
+
+
+### =========================
+### Login
+### =========================
+### // Endpoint works
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+### =========================
+### Logout + clear auth token
+### =========================
+POST {{baseUrl}}/logout
+Authorization: Bearer {{auth_token}}
+
+### =========================
+### All Time Stats (protected)
+### =========================
+POST {{baseUrl}}/allTimeStats
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{}
+
+#######################################################################
+###                          ANIMALS ENDPOINTS                      ###
+#######################################################################
+
+### =========================
+### Animal Endpoint Vars
+### =========================
+### TODO: Replace these manually
+@animal_id = 99c230ca-15d2-4333-b958-f5284a50f03b
+@update_animal_id = 99c230ca-15d2-4333-b958-f5284a50f03b
+
+### =========================
+### Create a new animal
+### =========================
+### // Returns the Update Animal ID
+POST {{baseUrl}}/animals
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "Lion",
+  "imageUrl": "https://example.com/lion.png"
+}
+
+### =========================
+### Get all animals
+### =========================
+GET {{baseUrl}}/animals
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+### =========================
+### Get animal by ID
+### =========================
+GET {{baseUrl}}/animals/{{animal_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+
+### =========================
+### Update an existing animal
+### =========================
+PUT {{baseUrl}}/animals/{{animal_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "Tiger",
+  "imageUrl": "https://example.com/tiger.png"
+}
+
+### =========================
+### Delete an animal
+### =========================
+DELETE {{baseUrl}}/animals/{{animal_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+#######################################################################
+###                          COURSES ENDPOINTS                      ###
+#######################################################################
+
+### =========================
+### Course Endpoint Vars
+### =========================
+### TODO: Replace these manually
+@create_course_animal_ids = ["ab0691d8-dc2e-4c51-9b0b-898a07f8256d","b3818467-c704-4535-8315-cbcf5f0e79c6"]
+@update_course_animal_ids = ["ba6494ca-21c7-4755-892b-a8ab31d78459","8f306388-5e08-49a3-850f-d4c883116045"]
+
+# Course ID
+@course_id = f9b14131-3215-49a1-baa5-f72dae7603Ae
+
+### =========================
+### Get all courses
+### =========================
+GET {{baseUrl}}/courses
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+### =========================
+### Get course by ID
+### =========================
+GET {{baseUrl}}/courses/{{course_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+### =========================
+### Create a new course
+### =========================
+POST {{baseUrl}}/courses
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "Course": {
+    "Name": "Beginner Archery",
+    "Location": "Some location",
+    "Difficulty": "easy",
+    "Info": "Some info",
+    "Animals": [
+      { "Id": "ab0691d8-dc2e-4c51-9b0b-898a07f8256d", "Name": "Lion", "ImageUrl": "https://example.com/lion.png" },
+      { "Id": "b3818467-c704-4535-8315-cbcf5f0e79c6", "Name": "Penguin", "ImageUrl": "https://example.com/penguin.png" }
+    ]
+  }
+}
+
+### =========================
+### Update an existing course
+### =========================
+PUT {{baseUrl}}/courses/{{course_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "Course": {
+    "Name": "Beginner Archery",
+    "Location": "Home",
+    "Difficulty": "hard",
+    "Info": "Lorem Ipsum",
+    "Animals": [
+      { "Id": "b3818467-c704-4535-8315-cbcf5f0e79c6", "Name": "Penguin", "ImageUrl": "https://example.com/penguin.png" },
+      { "Id": "ab0691d8-dc2e-4c51-9b0b-898a07f8256d", "Name": "Lion", "ImageUrl": "https://example.com/lion.png" }
+    ]
+  }
+}
+
+### =========================
+### Delete a course
+### =========================
+DELETE {{baseUrl}}/courses/{{course_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+#######################################################################
+###                          HUNTS ENDPOINTS                        ###
+#######################################################################
+
+### =========================
+### Hunt Endpoint Vars
+### =========================
+# TODO: Replace these manually
+@hunt_id = AAAD
+@course_id_for_hunt = f9b14131-3215-49a1-baa5-f72dae76036e
+@animal_id_for_hunt = b3818467-c704-4535-8315-cbcf5f0e79c6
+@shot_count = 1
+@points_scored = 20
+
+### =========================
+### Create a new hunt
+### =========================
+POST {{baseUrl}}/hunts
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+### =========================
+### Get hunt by ID
+### =========================
+GET {{baseUrl}}/hunts/{{hunt_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+### =========================
+### Join a hunt
+### =========================
+POST {{baseUrl}}/hunts/{{hunt_id}}/join
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+### =========================
+### Leave a hunt
+### =========================
+// Potential Problems but maybe the get at the end can not see the info
+POST {{baseUrl}}/hunts/{{hunt_id}}/leave
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+### =========================
+### Set hunt scoring variant
+### =========================
+POST {{baseUrl}}/hunts/{{hunt_id}}/shotvariant
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "variant": 2
+}
+
+### =========================
+### Assign course to hunt
+### =========================
+POST {{baseUrl}}/hunts/{{hunt_id}}/course
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "courseId": "{{course_id_for_hunt}}"
+}
+
+### =========================
+### Activate hunt
+### =========================
+POST {{baseUrl}}/hunts/{{hunt_id}}/activate
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+### =========================
+### Register a shot for an animal
+### =========================
+POST {{baseUrl}}/hunts/{{hunt_id}}/animals/{{animal_id_for_hunt}}/shot/{{shot_count}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "pointsScored": {{points_scored}}
+}
+
+### =========================
+### Get hunt stats
+### =========================
+GET {{baseUrl}}/hunts/{{hunt_id}}/stats
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+### =========================
+### Get hunt user stats
+### =========================
+GET {{baseUrl}}/hunts/{{hunt_id}}/userstats
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}

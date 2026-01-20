@@ -40,15 +40,19 @@ services:
   archerly-api:
     build:
       context: .
-      dockerfile: src/archerly.api/Dockerfile
+      dockerfile: Dockerfile
       args:
         CONFIGURATION: Release   # Can override to Debug with environment variable
     container_name: archerly-api
+    env_file:
+      - ./src/archerly.api/.env  
     ports:
       - "5000:5000"
     environment:
       DOTNET_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:5000"
+    volumes:
+      - ./logs:/app/logs
     depends_on:
       - prometheus
       - loki

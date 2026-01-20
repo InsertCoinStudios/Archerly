@@ -1,9 +1,11 @@
 using archerly.core.extensions;
 using archerly.metrics;
+using System.Linq;
 namespace archerly.core.hunts;
 
 public class PlayerList
 {
+    // TODO: Duplicate Players are allowed
     private readonly List<Guid> _players = new();
     private readonly Lock _playerLock = new();
 
@@ -18,7 +20,7 @@ public class PlayerList
         {
             lock (_playerLock)
             {
-                return _players.ToList();
+                return _players.AsEnumerable().ToList();
             }
         }
     }
