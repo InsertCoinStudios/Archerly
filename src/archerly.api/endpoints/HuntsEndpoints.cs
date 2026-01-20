@@ -136,7 +136,7 @@ public static class HuntsEndPoint
     }
 
 
-    private async static Task<IResult> PostHuntCourseById(string id, ClaimsPrincipal user, HuntManager manager, HuntCourseSetRequest receivedData)
+    private async static Task<IResult> PostHuntCourseById(string id, ClaimsPrincipal user, HuntManager manager, HuntCourseSetRequest receivedData, IHydratedCourseRepository repo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(PostHuntCourseById), user, out Guid guid, out IResult? error))
         {
@@ -148,7 +148,12 @@ public static class HuntsEndPoint
         }
         try
         {
-            manager.SetCourseForPendingHunt(id, receivedData.CourseId);
+            var hydrated = await repo.GetByIdAsync(receivedData.CourseId);
+            if (hydrated is null)
+            {
+                return Results.NotFound();
+            }
+            manager.SetCourseForPendingHunt(id, hydrated);
             return Results.Ok();
         }
         catch (Exception e)
