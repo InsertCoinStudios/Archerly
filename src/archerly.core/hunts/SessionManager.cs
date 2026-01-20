@@ -170,15 +170,13 @@ public class SessionManager : IDisposable
     /// <exception cref="SessionDeletedException">
     /// Thrown when the pending hunt has been soft-deleted and can no longer be modified.
     /// </exception>
-    public void SetCourse(string sessionId, Guid courseId)
+    public void SetCourse(string sessionId, entities.HydratedCourse course)
     {
-        Log.Information("Starting setting Course for Session with ID {session} and Course {var}", sessionId, courseId);
+        Log.Information("Starting setting Course for Session with ID {session} and Course {var}", sessionId, course);
         var pending = GetPendingHunt(sessionId);
         // retrieve course by GUId from db
-        // TODO: Replace with call to the repository
-        var course = new Course(courseId);
         pending.Settings.SelectedCourse = course;
-        Log.Information("Completed setting Course for Session with ID {session} and Course {var}", sessionId, courseId);
+        Log.Information("Completed setting Course for Session with ID {session} and Course {var}", sessionId, course);
     }
 
     /// <summary>
@@ -245,7 +243,7 @@ public class SessionManager : IDisposable
     public entities.Shot RegisterShot(string sessionId, Guid playerId, Guid animalId, int points, int shotNumber)
     {
         var hunt = GetHunt(sessionId);
-        return hunt.Scores.RegisterShot(playerId, animalId, points, shotNumber);
+        return hunt.Scores.RegisterShot(playerId, animalId, points, shotNumber, hunt.UUID);
     }
 
     public AllStats GetStats(string sessionId)
@@ -557,8 +555,8 @@ public class SessionManager : IDisposable
 
 }
 
-public record AllStats(Dictionary<Guid, List<Shot>> ByPlayers, List<KeyValuePair<Guid, int>> Ranking);
-public record UserStats(Guid User, List<Shot> Shots, List<KeyValuePair<Guid, int>> Ranking);
+public record AllStats(Dictionary<Guid, List<entities.Shot>> ByPlayers, List<KeyValuePair<Guid, int>> Ranking);
+public record UserStats(Guid User, List<entities.Shot> Shots, List<KeyValuePair<Guid, int>> Ranking);
 
 public sealed class SessionNotFoundException : Exception, IApiErrorConvertible, IDetailProvider
 {

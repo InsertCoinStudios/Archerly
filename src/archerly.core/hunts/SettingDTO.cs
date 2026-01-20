@@ -10,7 +10,7 @@ public class HuntSettingsDto
     /// <summary>
     /// The selected course. Null if not set.
     /// </summary>
-    public Course? SelectedCourse { get; set; }
+    public entities.HydratedCourse? SelectedCourse { get; set; }
 
     /// <summary>
     /// Creates a DTO from a finalized HuntSettings object.

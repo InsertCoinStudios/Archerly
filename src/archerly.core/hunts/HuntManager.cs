@@ -41,12 +41,12 @@ public class HuntManager : IDisposable
         return pending.SessionId;
     }
 
-    public void SetCourseForPendingHunt(string sessionId, Guid courseId)
+    public void SetCourseForPendingHunt(string sessionId, entities.HydratedCourse course)
     {
         // TODO: I am expecting potential exceptions from the database layer when retrieving the Course
         try
         {
-            _sessions.SetCourse(sessionId, courseId);
+            _sessions.SetCourse(sessionId, course);
         }
         catch (Exception e)
         {

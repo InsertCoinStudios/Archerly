@@ -6,7 +6,7 @@ namespace archerly.core.hunts;
 
 public class ScoreBoard
 {
-    private readonly List<Shot> _shots = new();
+    private readonly List<entities.Shot> _shots = new();
     // User Guids
     private readonly Dictionary<Guid, int> _playerPoints = new();
     private readonly ShotType _shotType;
@@ -20,19 +20,18 @@ public class ScoreBoard
         _targets = targets;
     }
 
-    public entities.Shot RegisterShot(Guid Player, Guid Target, int Points, int shotNumber)
+    public entities.Shot RegisterShot(Guid Player, Guid Target, int Points, int shotNumber, Guid huntGuid)
     {
         if (!_targets.Contains(Target))
         {
             throw new InvalidTargetForTargetListException(Target, _targets);
         }
-        var shot = new Shot(Player, Target, _shotType, Points, shotNumber);
+        var shot = entities.Shot.From(Guid.NewGuid(), Player, Target, Points, (int)_shotType, shotNumber, huntGuid);
         lock (_lock)
         {
             _shots.Add(shot);
             _playerPoints.AddToCount(Player, Points);
-            var conv = shot.Convert();
-            return conv;
+            return shot;
         }
     }
 
@@ -61,9 +60,9 @@ public class ScoreBoard
 
             foreach (var shot in _shots)
             {
-                if (shot.Target.Equals(target))
+                if (shot.AnimalId.Equals(target))
                 {
-                    result[shot.Player] += shot.Points;
+                    result[shot.UserId] += shot.Score;
                 }
             }
         }
@@ -71,12 +70,12 @@ public class ScoreBoard
         return result;
     }
 
-    public List<Shot> GetShotsForPlayer(Guid player)
+    public List<entities.Shot> GetShotsForPlayer(Guid player)
     {
-        List<Shot> result = new();
+        List<entities.Shot> result = new();
         foreach (var shot in _shots)
         {
-            if (player.Equals(shot.Player))
+            if (player.Equals(shot.UserId))
             {
                 result.Add(shot);
             }
@@ -84,12 +83,12 @@ public class ScoreBoard
         return result;
     }
 
-    public Dictionary<Guid, List<Shot>> GetShotsGroupedByPlayers()
+    public Dictionary<Guid, List<entities.Shot>> GetShotsGroupedByPlayers()
     {
-        var result = new Dictionary<Guid, List<Shot>>();
+        var result = new Dictionary<Guid, List<entities.Shot>>();
         foreach (var shot in _shots)
         {
-            var player = shot.Player;
+            var player = shot.UserId;
             if (!result.ContainsKey(player))
             {
                 result[player] = new();

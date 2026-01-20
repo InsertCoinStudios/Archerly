@@ -21,11 +21,12 @@ public class Hunt
     }
 
     private ScoreBoard _scores;
-    private readonly Course _course;
+    private readonly entities.HydratedCourse _course;
     private readonly ShotType _scoringVariant;
     public string SessionId { get; private set; }
     public HuntSettings Settings { get; private set; }
     public PlayerList Players { get; init; }
+    public Guid UUID { get; private set; }
 
     private readonly Lock _scoreLock = new();
 
@@ -35,7 +36,9 @@ public class Hunt
         Players = partial.Players;
         _scoringVariant = settings.ScoringVariant;
         _course = settings.SelectedCourse;
-        _scores = new ScoreBoard(_scoringVariant, _course.Targets);
+        var animalIds = _course.Animals.Select(a => a.Id).ToList();
+        _scores = new ScoreBoard(_scoringVariant, animalIds);
         Settings = settings;
+        UUID = Guid.NewGuid();
     }
 }
