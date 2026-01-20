@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using archerly.core.extensions;
 using archerly.metrics;
+using Microsoft.AspNetCore.Http;
 using Serilog;
 namespace archerly.core.hunts;
 
@@ -250,8 +251,11 @@ public class SessionManager : IDisposable
     {
         var hunt = GetHunt(sessionId);
         var ranks = hunt.Scores.GetRanking();
-        var shotsByPlayers = hunt.Scores.GetShotsGroupedByPlayers();
-        return new AllStats(shotsByPlayers, ranks);
+        if (ranks.Count == 0)
+        {
+            Log.Information("Ranks is empty");
+        }
+        return new AllStats(ranks);
     }
 
     public UserStats GetUserStats(string sessionId, Guid player)
@@ -259,7 +263,62 @@ public class SessionManager : IDisposable
         var hunt = GetHunt(sessionId);
         var ranks = hunt.Scores.GetRanking();
         var shots = hunt.Scores.GetShotsForPlayer(player);
-        return new UserStats(player, shots, ranks);
+        if (shots.Count == 0)
+        {
+            Log.Information("Shots for Player {playerid} is empty", player);
+        }
+
+        var counterKillShot = 0;
+        var counterHit = 0;
+        var counterMiss = 0;
+        foreach (var shot in shots)
+        {
+            if (shot.Score == 0)
+            {
+                counterMiss++;
+            }
+            if (shot.Score > 0)
+            {
+                counterHit++;
+            }
+            if (IsKillShot(shot))
+            {
+                counterKillShot++;
+            }
+        }
+        int? playerRank = ranks?.FirstOrDefault(kvp => kvp.Key == player).Value;
+        int rank = -1;
+        if (playerRank is not null)
+        {
+            rank = playerRank.Value;
+        }
+        return new UserStats(player, counterKillShot, counterHit, counterMiss, rank);
+    }
+
+    private static bool IsKillShot(entities.Shot shot)
+    {
+        if (shot.Score == 0)
+        {
+            return false;
+        }
+
+        // Zweipfeil 20 Score immer Kill
+        // Dreipfeil Erster Pfeil 20 Kill
+        // Dreipfeil Zweiter 16 Kill
+        // Dreipfeil Dritter 10 Kill
+        return shot switch
+        {
+            // Zweipfeil: always kill on 20
+            { Kind: 2, Score: 20 } => true,
+
+            // Dreipfeil rules
+            { Kind: 3, ShotNumber: 1, Score: 20 } => true,
+            { Kind: 3, ShotNumber: 2, Score: 16 } => true,
+            { Kind: 3, ShotNumber: 3, Score: 10 } => true,
+
+            // everything else
+            _ => false
+        };
     }
 
     public void RemovePlayerFromSessions(Guid playerId)
@@ -555,8 +614,8 @@ public class SessionManager : IDisposable
 
 }
 
-public record AllStats(Dictionary<Guid, List<entities.Shot>> ByPlayers, List<KeyValuePair<Guid, int>> Ranking);
-public record UserStats(Guid User, List<entities.Shot> Shots, List<KeyValuePair<Guid, int>> Ranking);
+public record AllStats(List<KeyValuePair<Guid, int>> Ranking);
+public record UserStats(Guid User, int Kill, int Hit, int Miss, int Rank);
 
 public sealed class SessionNotFoundException : Exception, IApiErrorConvertible, IDetailProvider
 {

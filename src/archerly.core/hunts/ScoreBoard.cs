@@ -40,9 +40,19 @@ public class ScoreBoard
         List<KeyValuePair<Guid, int>> result;
         lock (_lock)
         {
-            result = _playerPoints
+            // Order players by points descending
+            var orderedPlayers = _playerPoints
                 .OrderByDescending(kv => kv.Value)
                 .ToList();
+
+            // Assign rankings
+            result = new List<KeyValuePair<Guid, int>>();
+            int rank = 1;
+            foreach (var kv in orderedPlayers)
+            {
+                result.Add(new KeyValuePair<Guid, int>(kv.Key, rank));
+                rank++;
+            }
         }
         return result;
     }
