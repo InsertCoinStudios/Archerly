@@ -41,6 +41,10 @@ public static class AnimalEndpoints
         try
         {
             var result = await repo.GetByIdAsync(id);
+            if (result is null)
+            {
+                return Results.NotFound();
+            }
             return Results.Ok(result);
         }
         catch (Exception e)
