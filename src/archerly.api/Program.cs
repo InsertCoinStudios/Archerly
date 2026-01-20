@@ -15,6 +15,17 @@ public static class Program
         builder.AddRepoServices();
 
         builder.Services.AddAuthorization();
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("Frontend",
+                policy =>
+                {
+                    policy
+                        .WithOrigins("http://localhost:3001")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+        });
 
         // Add services to the container.
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -39,6 +50,8 @@ public static class Program
         Log.Information("Logger Configured");
 
         var app = builder.Build();
+        app.UseRouting();
+        app.UseCors("Frontend");
 
         app.UseAuthentication();
         app.UseAuthorization();
@@ -59,9 +72,4 @@ public static class Program
 
         app.Run();
     }
-}
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }
