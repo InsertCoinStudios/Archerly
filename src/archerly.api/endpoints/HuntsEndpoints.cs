@@ -119,10 +119,6 @@ public static class HuntsEndPoint
         {
             return error;
         }
-        if (!manager.IsOwnerOf(id, guid))
-        {
-            return Results.Unauthorized();
-        }
         try
         {
             manager.SetScoringVariantForPendingHunt(id, receivedData.Variant);
@@ -141,10 +137,6 @@ public static class HuntsEndPoint
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(PostHuntCourseById), user, out Guid guid, out IResult? error))
         {
             return error;
-        }
-        if (!manager.IsOwnerOf(id, guid))
-        {
-            return Results.Unauthorized();
         }
         try
         {
@@ -169,10 +161,6 @@ public static class HuntsEndPoint
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(PostHuntActivateById), user, out Guid guid, out IResult? error))
         {
             return error;
-        }
-        if (!manager.IsOwnerOf(id, guid))
-        {
-            return Results.Unauthorized();
         }
         try
         {
