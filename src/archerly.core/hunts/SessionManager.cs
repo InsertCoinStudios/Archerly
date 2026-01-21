@@ -78,16 +78,16 @@ public class SessionManager : IDisposable
     /// <param name="sessionId">The unique identifier of the hunt to remove.</param>
     public void RemoveHunt(string sessionId)
     {
-        lock (_lock)
-        {
-            if (_hunts.TryGetValue(sessionId, out var entry))
-            {
-                entry.SoftDelete();
-                MetricsRegistry.HuntGauge.Dec();
-                MetricsRegistry.SoftDeletedSessionGauge.Inc();
-                _softDeletedSessions++;
-            }
-        }
+        //lock (_lock)
+        //{
+        //    if (_hunts.TryGetValue(sessionId, out var entry))
+        //    {
+        //        entry.SoftDelete();
+        //        MetricsRegistry.HuntGauge.Dec();
+        //        MetricsRegistry.SoftDeletedSessionGauge.Inc();
+        //        _softDeletedSessions++;
+        //    }
+        //}
     }
 
     /// <summary>
@@ -96,16 +96,16 @@ public class SessionManager : IDisposable
     /// <param name="sessionId">The unique identifier of the pending hunt to remove.</param>
     public void RemovePendingHunt(string sessionId)
     {
-        lock (_lock)
-        {
-            if (_pendingHunts.TryGetValue(sessionId, out var entry))
-            {
-                entry.SoftDelete();
-                MetricsRegistry.PendingHuntGauge.Dec();
-                MetricsRegistry.SoftDeletedSessionGauge.Inc();
-                _softDeletedSessions++;
-            }
-        }
+        //lock (_lock)
+        //{
+        //    if (_pendingHunts.TryGetValue(sessionId, out var entry))
+        //    {
+        //        entry.SoftDelete();
+        //        MetricsRegistry.PendingHuntGauge.Dec();
+        //        MetricsRegistry.SoftDeletedSessionGauge.Inc();
+        //        _softDeletedSessions++;
+        //    }
+        //}
     }
 
     /// <summary>
@@ -500,10 +500,10 @@ public class SessionManager : IDisposable
         [MemberNotNullWhen(false, nameof(Value))]
         public bool IsDeleted()
         {
-            if (IsExpired())
-            {
-                return true;
-            }
+            //if (IsExpired())
+            //{
+            //    return true;
+            //}
             return _isDeleted;
         }
         private bool IsExpired()
