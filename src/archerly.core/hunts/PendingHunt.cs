@@ -1,3 +1,5 @@
+using Serilog;
+
 namespace archerly.core.hunts;
 
 public class PendingHunt
@@ -44,13 +46,21 @@ public class PendingHunt
             {
                 throw new HuntAlreadyActivatedException(SessionId, Settings);
             }
-            //throws ScoringVariantNotSetException;
-            //throws CourseNotSetException;
-            HuntSettings settings = Settings.Build();
-            Hunt hunt = new Hunt(settings, this);
+            try
+            {
+                //throws ScoringVariantNotSetException;
+                //throws CourseNotSetException;
+                HuntSettings settings = Settings.Build();
+                Hunt hunt = new Hunt(settings, this);
 
-            _activated = true;
-            _transitionAction(hunt);
+                _activated = true;
+                _transitionAction(hunt);
+            }
+            catch (Exception e)
+            {
+                Log.Warning("PendingHunt Activation failed with Exception {type}", e.GetType());
+                throw;
+            }
         }
     }
 }
