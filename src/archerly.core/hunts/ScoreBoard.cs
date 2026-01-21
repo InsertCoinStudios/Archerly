@@ -41,9 +41,9 @@ public class ScoreBoard
         }
     }
 
-    public List<KeyValuePair<Guid, int>> GetRanking()
+    public List<ScoreBoardData> GetRanking()
     {
-        List<KeyValuePair<Guid, int>> result;
+        List<ScoreBoardData> result;
         lock (_lock)
         {
             Log.Information(
@@ -63,7 +63,7 @@ public class ScoreBoard
             );
 
             // Assign rankings
-            result = new List<KeyValuePair<Guid, int>>();
+            result = new List<ScoreBoardData>();
             int rank = 1;
             foreach (var kv in orderedPlayers)
             {
@@ -73,7 +73,7 @@ public class ScoreBoard
                     kv.Key,
                     kv.Value
                 );
-                result.Add(new KeyValuePair<Guid, int>(kv.Key, rank));
+                result.Add(new ScoreBoardData(kv.Key, rank, kv.Value));
                 rank++;
             }
             Log.Information(
@@ -144,6 +144,8 @@ public class ScoreBoard
         return result;
     }
 }
+
+public record ScoreBoardData(Guid UserId, int Rank, int Score);
 
 public class InvalidTargetForTargetListException : Exception, IApiErrorConvertible, IDetailProvider
 {
