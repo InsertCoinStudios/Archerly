@@ -292,8 +292,8 @@ public class SessionManager : IDisposable
         }
         Log.Information("Player getting his stats is with guid {guid}", player);
         Log.Information("Ranks content: {@Ranks}", ranks);
-        int rank = ranks?.Where(kvp => kvp.Key == player)
-                         .Select(kvp => kvp.Value)
+        int rank = ranks?.Where(kvp => kvp.UserId == player)
+                         .Select(kvp => kvp.Rank)
                          .FirstOrDefault(-1) ?? -1;
         return new UserStats(player, counterKillShot, counterHit, counterMiss, rank);
     }
@@ -617,7 +617,7 @@ public class SessionManager : IDisposable
 
 }
 
-public record AllStats(List<KeyValuePair<Guid, int>> Ranking);
+public record AllStats(List<ScoreBoardData> Ranking);
 public record UserStats(Guid User, int Kill, int Hit, int Miss, int Rank);
 
 public sealed class SessionNotFoundException : Exception, IApiErrorConvertible, IDetailProvider

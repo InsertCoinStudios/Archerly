@@ -261,6 +261,8 @@ public static class StatConverter
         }
         return new HuntUserStatResponse(temp);
     }
+
+    //public record AllStats(List<ScoreBoardData> Ranking);
     public static async Task<ListedRanks> From(AllStats stats, IUserRepository repo)
     {
         List<AllStatWrapper> listing = new();
@@ -272,24 +274,24 @@ public static class StatConverter
         return new ListedRanks(listing);
     }
 
-    public static async Task<AllStatWrapper> From(KeyValuePair<Guid, int> singularRank, IUserRepository repo)
+    public static async Task<AllStatWrapper> From(ScoreBoardData singularRank, IUserRepository repo)
     {
-        var user = await repo.GetByIdAsync(singularRank.Key);
+        var user = await repo.GetByIdAsync(singularRank.UserId);
         AllStatWrapper result;
         if (user is null)
         {
-            result = new AllStatWrapper(singularRank.Key, "Babbabooie", singularRank.Value);
+            result = new AllStatWrapper(singularRank.UserId, "Babbabooie", singularRank.Rank, singularRank.Score);
         }
         else
         {
             var name = user.Nickname;
-            result = new AllStatWrapper(singularRank.Key, name, singularRank.Value);
+            result = new AllStatWrapper(singularRank.UserId, name, singularRank.Rank, singularRank.Score);
         }
         return result;
     }
 }
 public record HuntUserStatsWrapper(Guid User, string UserName, int Kill, int Hit, int Miss, int Rank);
-public record AllStatWrapper(Guid User, string UserName, int Rank);
+public record AllStatWrapper(Guid User, string UserName, int Rank, int Score);
 public record ListedRanks(List<AllStatWrapper> Ranks);
 //public record AllStats(List<KeyValuePair<Guid, int>> Ranking);
 
