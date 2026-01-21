@@ -154,6 +154,7 @@ public class HuntManager : IDisposable
     {
         try
         {
+            Log.Information("Player getting his stats is with guid {guid}", user);
             var stats = _sessions.GetUserStats(sessionId, user);
             return stats;
         }

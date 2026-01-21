@@ -1,6 +1,7 @@
 
 using archerly.core.extensions;
 using Microsoft.VisualBasic;
+using Serilog;
 
 namespace archerly.core.hunts;
 
@@ -8,16 +9,21 @@ public class ScoreBoard
 {
     private readonly List<entities.Shot> _shots = new();
     // User Guids
-    private readonly Dictionary<Guid, int> _playerPoints = new();
+    private readonly Dictionary<Guid, int> _playerPoints;
     private readonly ShotType _shotType;
     // Guids of the Animals
     private readonly List<Guid> _targets;
     private readonly Lock _lock = new();
 
-    public ScoreBoard(ShotType selectedVariant, List<Guid> targets)
+    public ScoreBoard(ShotType selectedVariant, List<Guid> targets, List<Guid> players)
     {
         _shotType = selectedVariant;
         _targets = targets;
+        _playerPoints = new Dictionary<Guid, int>();
+        foreach (var playerId in players)
+        {
+            _playerPoints[playerId] = 0;
+        }
     }
 
     public entities.Shot RegisterShot(Guid Player, Guid Target, int Points, int shotNumber, Guid huntGuid)
@@ -40,20 +46,47 @@ public class ScoreBoard
         List<KeyValuePair<Guid, int>> result;
         lock (_lock)
         {
+            Log.Information(
+                "GetRanking: _playerPoints contains {Count} entries: {@PlayerPoints}",
+                _playerPoints.Count,
+                _playerPoints
+            );
             // Order players by points descending
             var orderedPlayers = _playerPoints
                 .OrderByDescending(kv => kv.Value)
                 .ToList();
+
+            Log.Information(
+                "GetRanking: orderedPlayers count = {Count}, data = {@OrderedPlayers}",
+                orderedPlayers.Count,
+                orderedPlayers
+            );
 
             // Assign rankings
             result = new List<KeyValuePair<Guid, int>>();
             int rank = 1;
             foreach (var kv in orderedPlayers)
             {
+                Log.Information(
+                    "GetRanking: assigning rank {Rank} to player {PlayerId} with points {Points}",
+                    rank,
+                    kv.Key,
+                    kv.Value
+                );
                 result.Add(new KeyValuePair<Guid, int>(kv.Key, rank));
                 rank++;
             }
+            Log.Information(
+                "GetRanking: final result count = {Count}, data = {@Result}",
+                result.Count,
+                result
+            );
         }
+        Log.Information(
+            "GetRanking: returning result count = {Count}, data = {@Result}",
+            result.Count,
+            result
+        );
         return result;
     }
 

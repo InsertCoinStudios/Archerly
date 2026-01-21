@@ -37,7 +37,7 @@ public class Hunt
         _scoringVariant = settings.ScoringVariant;
         _course = settings.SelectedCourse;
         var animalIds = _course.Animals.Select(a => a.Id).ToList();
-        _scores = new ScoreBoard(_scoringVariant, animalIds);
+        _scores = new ScoreBoard(_scoringVariant, animalIds, Players.ToList.ToList());
         Settings = settings;
         UUID = Guid.NewGuid();
     }

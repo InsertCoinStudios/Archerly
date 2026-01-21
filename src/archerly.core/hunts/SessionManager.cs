@@ -262,6 +262,8 @@ public class SessionManager : IDisposable
 
     public UserStats GetUserStats(string sessionId, Guid player)
     {
+
+        Log.Information("Player getting his stats is with guid {guid}", player);
         var hunt = GetHunt(sessionId);
         var ranks = hunt.Scores.GetRanking();
         var shots = hunt.Scores.GetShotsForPlayer(player);
@@ -288,6 +290,8 @@ public class SessionManager : IDisposable
                 counterKillShot++;
             }
         }
+        Log.Information("Player getting his stats is with guid {guid}", player);
+        Log.Information("Ranks content: {@Ranks}", ranks);
         int rank = ranks?.Where(kvp => kvp.Key == player)
                          .Select(kvp => kvp.Value)
                          .FirstOrDefault(-1) ?? -1;

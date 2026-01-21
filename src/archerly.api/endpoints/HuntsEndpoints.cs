@@ -220,6 +220,7 @@ public static class HuntsEndPoint
         }
         try
         {
+            Log.Information("Player getting his stats is with guid {guid}", guid);
             var stats = manager.GetUserStatsFor(id, guid);
             return Results.Ok(new HuntUserStatResponse(stats));
         }
