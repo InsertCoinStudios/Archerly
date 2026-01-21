@@ -165,6 +165,12 @@ public class HuntManager : IDisposable
         }
     }
 
+    public bool IsActivated(string id)
+    {
+        var session = _sessions.GetSession(id);
+        return session.IsHunt();
+    }
+
     public SessionData? GetDataFor(string sessionId, Guid requester)
     {
         IReadOnlyList<Guid> players;
