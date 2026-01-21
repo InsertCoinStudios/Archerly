@@ -114,9 +114,10 @@ public class HuntManager : IDisposable
         return _sessions.PlayerJoined(sessionId, playerId);
     }
 
+    // TODO: irgendwie wird dieser endpunkt gecalled ohne gecalled zu werden
     public bool PlayerLeft(string sessionId, Guid playerId)
     {
-        Log.Information("Player Left {guid}", playerId);
+        Log.Information("Function: {func} Player Left{guid}", nameof(PlayerLeft), playerId);
         return _sessions.PlayerLeft(sessionId, playerId);
     }
 

@@ -1,5 +1,6 @@
 using archerly.core.extensions;
 using archerly.metrics;
+using Serilog;
 using System.Linq;
 namespace archerly.core.hunts;
 
@@ -48,6 +49,7 @@ public class PlayerList
 
     public void Remove(Guid leavingPlayer)
     {
+        Log.Information("Function: {func} in Playerlist Remove func Player Left{guid}", nameof(Remove), leavingPlayer);
         ArgumentException.ThrowIfEmpty(leavingPlayer);
 
         SessionAction action = GetActionAfterLeave(leavingPlayer);

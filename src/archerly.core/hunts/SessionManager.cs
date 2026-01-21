@@ -227,6 +227,8 @@ public class SessionManager : IDisposable
 
     public bool PlayerLeft(string sessionId, Guid playerId)
     {
+
+        Log.Information("Function: {func} in Session Manager Player Left{guid}", nameof(PlayerLeft), playerId);
         var session = GetSession(sessionId);
         if (session.IsHunt())
         {
