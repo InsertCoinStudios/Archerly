@@ -50,7 +50,7 @@ public static class HuntsEndPoint
             {
                 Log.Warning($"Illegal State could not resolve Logged in User {innerUser} Function: GetHuntById");
                 // Remove this invalid state player
-                manager.PlayerLeft(id, innerUser);
+                //manager.PlayerLeft(id, innerUser);// removed because i think it conflicts
                 continue;
             }
             resolvedPlayers.Add(resolvedUser);

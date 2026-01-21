@@ -55,6 +55,7 @@ public static class CoursesEndpoint
             var course = await repo.GetByIdAsync(id);
             if (course is null)
             {
+                Log.Warning("queried for {id} received {course}", id, course);
                 return Results.NotFound();
             }
             return Results.Ok(new HydratedCourseResponse(course));

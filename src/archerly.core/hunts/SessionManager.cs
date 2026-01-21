@@ -227,6 +227,8 @@ public class SessionManager : IDisposable
 
     public bool PlayerLeft(string sessionId, Guid playerId)
     {
+
+        Log.Information("Function: {func} in Session Manager Player Left{guid}", nameof(PlayerLeft), playerId);
         var session = GetSession(sessionId);
         if (session.IsHunt())
         {
@@ -286,12 +288,9 @@ public class SessionManager : IDisposable
                 counterKillShot++;
             }
         }
-        int? playerRank = ranks?.FirstOrDefault(kvp => kvp.Key == player).Value;
-        int rank = -1;
-        if (playerRank is not null)
-        {
-            rank = playerRank.Value;
-        }
+        int rank = ranks?.Where(kvp => kvp.Key == player)
+                         .Select(kvp => kvp.Value)
+                         .FirstOrDefault(-1) ?? -1;
         return new UserStats(player, counterKillShot, counterHit, counterMiss, rank);
     }
 
