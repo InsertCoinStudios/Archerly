@@ -13,6 +13,7 @@ public static class HuntsEndPoint
     public static void MapHuntEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet("/hunts/{id:length(4)}", GetHuntById).RequireAuthorization();
+        app.MapGet("/hunts/{id:length(4)}/IsActivated", GetHuntIsActivated).RequireAuthorization();
         app.MapGet("/hunts/{id:length(4)}/stats", GetHuntStats).RequireAuthorization();
         app.MapGet("/hunts/{id:length(4)}/userstats", GetHuntUserStats).RequireAuthorization();
         app.MapPost("/hunts", PostHunt).RequireAuthorization();
@@ -23,6 +24,16 @@ public static class HuntsEndPoint
         app.MapPost("/hunts/{id:length(4)}/course", PostHuntCourseById).RequireAuthorization();
         app.MapPost("/hunts/{id:length(4)}/activate", PostHuntActivateById).RequireAuthorization();
         app.MapPost("/hunts/{huntId:length(4)}/animals/{animalId:guid}/shot/{shotCount}", PostHuntShotOnTargetByIds).RequireAuthorization();
+    }
+
+    private static async Task<IResult> GetHuntIsActivated(string id, HuntManager manager, ClaimsPrincipal user)
+    {
+        if (!JwtHelpers.TryGetUserGuidFromClaim("GetHunt", user, out Guid guid, out IResult? error))
+        {
+            return error;
+        }
+        var active = manager.IsActivated(id);
+        return Results.Ok(active);
     }
 
 
@@ -193,7 +204,7 @@ public static class HuntsEndPoint
         }
     }
 
-    private async static Task<IResult> GetHuntStats(string id, ClaimsPrincipal user, HuntManager manager)
+    private async static Task<IResult> GetHuntStats(string id, ClaimsPrincipal user, HuntManager manager, IUserRepository repo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(GetHuntStats), user, out Guid guid, out IResult? error))
         {
@@ -202,7 +213,7 @@ public static class HuntsEndPoint
         try
         {
             var stats = manager.GetStatsFor(id);
-            return Results.Ok(new HuntAllStatResponse(stats));
+            return Results.Ok(await StatConverter.From(stats, repo));
         }
         catch (Exception e)
         {
@@ -212,7 +223,7 @@ public static class HuntsEndPoint
 
     }
 
-    private async static Task<IResult> GetHuntUserStats(string id, ClaimsPrincipal user, HuntManager manager)
+    private async static Task<IResult> GetHuntUserStats(string id, ClaimsPrincipal user, HuntManager manager, IUserRepository repo)
     {
         if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(GetHuntUserStats), user, out Guid guid, out IResult? error))
         {
@@ -222,7 +233,7 @@ public static class HuntsEndPoint
         {
             Log.Information("Player getting his stats is with guid {guid}", guid);
             var stats = manager.GetUserStatsFor(id, guid);
-            return Results.Ok(new HuntUserStatResponse(stats));
+            return Results.Ok(await StatConverter.From(stats, repo));
         }
         catch (Exception e)
         {
@@ -233,9 +244,58 @@ public static class HuntsEndPoint
     }
 }
 
+public static class StatConverter
+{
+    public static async Task<HuntUserStatResponse> From(UserStats stats, IUserRepository repo)
+    {
+        var user = await repo.GetByIdAsync(stats.User);
+        HuntUserStatsWrapper temp;
+        if (user is null)
+        {
+            temp = new HuntUserStatsWrapper(stats.User, "Babbabooie", stats.Kill, stats.Hit, stats.Miss, stats.Rank);
+        }
+        else
+        {
+            var name = user.Nickname;
+            temp = new HuntUserStatsWrapper(stats.User, name, stats.Kill, stats.Hit, stats.Miss, stats.Rank);
+        }
+        return new HuntUserStatResponse(temp);
+    }
+    public static async Task<ListedRanks> From(AllStats stats, IUserRepository repo)
+    {
+        List<AllStatWrapper> listing = new();
+        var oldRanking = stats.Ranking;
+        foreach (var rank in oldRanking)
+        {
+            listing.Add(await From(rank, repo));
+        }
+        return new ListedRanks(listing);
+    }
+
+    public static async Task<AllStatWrapper> From(KeyValuePair<Guid, int> singularRank, IUserRepository repo)
+    {
+        var user = await repo.GetByIdAsync(singularRank.Key);
+        AllStatWrapper result;
+        if (user is null)
+        {
+            result = new AllStatWrapper(singularRank.Key, "Babbabooie", singularRank.Value);
+        }
+        else
+        {
+            var name = user.Nickname;
+            result = new AllStatWrapper(singularRank.Key, name, singularRank.Value);
+        }
+        return result;
+    }
+}
+public record HuntUserStatsWrapper(Guid User, string UserName, int Kill, int Hit, int Miss, int Rank);
+public record AllStatWrapper(Guid User, string UserName, int Rank);
+public record ListedRanks(List<AllStatWrapper> Ranks);
+//public record AllStats(List<KeyValuePair<Guid, int>> Ranking);
+
 public record HuntDataResponse(User Owner, List<User> Players, long PlayerCount, string SessionId);
 public record HuntScoreVariantSetRequest(int Variant);
 public record HuntCourseSetRequest(Guid CourseId);
 public record HuntRegisterShotRequest(int PointsScored);
-public record HuntAllStatResponse(AllStats Stats);
-public record HuntUserStatResponse(UserStats Stats);
+public record HuntAllStatResponse(ListedRanks Stats);
+public record HuntUserStatResponse(HuntUserStatsWrapper Stats);
