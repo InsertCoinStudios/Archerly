@@ -110,11 +110,13 @@ public class HuntManager : IDisposable
     }
     public bool PlayerJoined(string sessionId, Guid playerId)
     {
+        Log.Information("Player Joined {guid}", playerId);
         return _sessions.PlayerJoined(sessionId, playerId);
     }
 
     public bool PlayerLeft(string sessionId, Guid playerId)
     {
+        Log.Information("Player Left {guid}", playerId);
         return _sessions.PlayerLeft(sessionId, playerId);
     }
 
