@@ -101,6 +101,7 @@ public class HuntManager : IDisposable
         catch (Exception e)
         {
             Log.Warning(e, $"Function: ActivatePendingHunt ID: {sessionId}");
+            throw;
         }
     }
 
