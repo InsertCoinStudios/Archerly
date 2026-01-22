@@ -233,6 +233,7 @@ public static class HuntsEndPoint
         {
             Log.Information("Player getting his stats is with guid {guid}", guid);
             var stats = manager.GetUserStatsFor(id, guid);
+            Log.Information("stats: {@stats}", stats);
             return Results.Ok(await StatConverter.From(stats, repo));
         }
         catch (Exception e)
