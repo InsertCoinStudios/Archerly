@@ -14,6 +14,7 @@ public static class HuntsEndPoint
     {
         app.MapGet("/hunts/{id:length(4)}", GetHuntById).RequireAuthorization();
         app.MapGet("/hunts/{id:length(4)}/IsActivated", GetHuntIsActivated).RequireAuthorization();
+        app.MapGet("/hunts/{id:length(4)}/GetCourse", GetCourseIDByHuntId).RequireAuthorization();
         app.MapGet("/hunts/{id:length(4)}/stats", GetHuntStats).RequireAuthorization();
         app.MapGet("/hunts/{id:length(4)}/userstats", GetHuntUserStats).RequireAuthorization();
         app.MapPost("/hunts", PostHunt).RequireAuthorization();
@@ -242,6 +243,26 @@ public static class HuntsEndPoint
             return Results.InternalServerError();
         }
 
+    }
+    private async static Task<IResult> GetCourseIDByHuntId(string id, ClaimsPrincipal user, HuntManager manager)
+    {
+
+        if (!JwtHelpers.TryGetUserGuidFromClaim(nameof(GetHuntUserStats), user, out Guid guid, out IResult? error))
+        {
+            return error;
+        }
+        try
+        {
+            Log.Information("Getting course id via hunt id");
+            var course = manager.GetCourseViaHunt(id);
+            return Results.Ok(course);
+
+        }
+        catch (Exception e)
+        {
+            Log.Warning(e, $"Function: {nameof(GetCourseIDByHuntId)} ID: {id}");
+            return Results.InternalServerError();
+        }
     }
 }
 

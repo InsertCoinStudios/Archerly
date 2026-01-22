@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Serilog;
+using System.Collections.Specialized;
 using System.Linq;
 
 namespace archerly.core.hunts;
@@ -19,6 +20,19 @@ public class HuntManager : IDisposable
         {
             _sessions = new();
         }
+    }
+    public string GetCourseViaHunt(string id)
+    {
+        var session = _sessions.GetSession(id);
+        if (session.IsHunt())
+        {
+            return session.Hunt.Settings.SelectedCourse.Id.ToString();
+        }
+        if (session.IsPending())
+        {
+            return session.Pending.Settings.SelectedCourse?.Id.ToString() ?? string.Empty;
+        }
+        return string.Empty;
     }
 
     public string CreateNewPendingHunt(Guid ownerId)
