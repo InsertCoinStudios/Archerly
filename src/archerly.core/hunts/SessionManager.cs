@@ -277,13 +277,17 @@ public class SessionManager : IDisposable
         var counterMiss = 0;
         foreach (var shot in shots)
         {
+            Log.Information("Shot {shotId}, UserId {userId}, AnimalId {animalId}, Kind {kind}, ShotNumber {number}, Score {score} ", shot.Id, shot.UserId, shot.AnimalId, shot.Kind, shot.ShotNumber, shot.Score);
+            Log.Information("Increasing Hit Counter");
+            counterHit++;
             if (shot.Score == 0)
             {
+                Log.Information("Increasing Miss Counter");
                 counterMiss++;
             }
-            counterHit++;
             if (IsKillShot(shot))
             {
+                Log.Information("Increasing Kill Counter");
                 counterKillShot++;
             }
         }
