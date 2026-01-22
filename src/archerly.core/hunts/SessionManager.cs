@@ -281,10 +281,7 @@ public class SessionManager : IDisposable
             {
                 counterMiss++;
             }
-            if (shot.Score > 0)
-            {
-                counterHit++;
-            }
+            counterHit++;
             if (IsKillShot(shot))
             {
                 counterKillShot++;
